@@ -1,0 +1,38 @@
+{
+  "name": "webgl-fluid-simulation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.config.js",
+    "start": "webpack-dev-server --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jorovipe97/webgl-fluid-simulation.git"
+  },
+  "keywords": [
+    "sph",
+    "fluid",
+    "simulation",
+    "metaballs",
+    "webgl"
+  ],
+  "author": "Jose Villalobos",
+  "bugs": {
+    "url": "https://github.com/jorovipe97/webgl-fluid-simulation/issues"
+  },
+  "homepage": "https://github.com/jorovipe97/webgl-fluid-simulation#readme",
+  "devDependencies": {
+    "css-loader": "^3.2.0",
+    "file-loader": "^4.2.0",
+    "http-server": "^0.11.1",
+    "style-loader": "^1.0.0",
+    "ts-loader": "^6.1.0",
+    "typescript": "^3.6.3",
+    "webpack": "^4.40.2",
+    "webpack-cli": "^3.3.8",
+    "webpack-dev-server": "^3.8.0"
+  }
+}

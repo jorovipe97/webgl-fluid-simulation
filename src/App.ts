@@ -43,9 +43,9 @@ export class App
         return attributeLocation;
     }
 
-    getUniformLocation(program:WebGLProgram, name:string):WebGLUniformLocation {
+    getUniformLocation(program:WebGLProgram, name:string, ignoreErrors:boolean = false):WebGLUniformLocation {
         var uniformLocation = this.GL.getUniformLocation(program, name);
-        if (uniformLocation === null) {
+        if (uniformLocation === null && !ignoreErrors) {
             throw 'Can not find uniform ' + name + '.';
         }
         return uniformLocation;

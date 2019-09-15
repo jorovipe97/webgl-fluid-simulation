@@ -5,6 +5,41 @@
 export const metaballShader:string = `
 precision highp float;
 uniform vec2 viewportSize;
+// Each pixel in this image is a metaball position
+// the position will be encoded in the rg components and the radius
+// will be encoded in the b component therefore ignoring
+// a component.
+uniform sampler2D metaballsPositions;
+// TODO: Pass width and height before shader compilation
+const int width = 4;
+const int height = 1;
+
+void main(){
+    vec2 uv = gl_FragCoord.xy / viewportSize.xy;
+
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    // Iterate metaballs
+    for (int j = 0; j < height; j++)
+    {
+        for (int i = 0; i < width; i++)
+        {
+            vec2 positionUv = vec2(float(i) / float(width), float(j) / float(height));
+            vec4 metaballPosition = texture2D(metaballsPositions, positionUv);
+            float dx = metaballPosition.x - gl_FragCoord.x;
+            float dy = metaballPosition.y - gl_FragCoord.y;
+            float r = metaballPosition.z;
+            if (dx*dx + dy*dy < r*r)
+            {
+                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+            }
+        }
+    }
+}
+`;
+
+export const basicFragment:string = `
+precision highp float;
+uniform vec2 viewportSize;
 
 void main(){
     // Draw every pixel red.

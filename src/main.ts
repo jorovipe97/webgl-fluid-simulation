@@ -13,6 +13,7 @@ export class MainGame extends App {
     private metaballsProgram:WebGLProgram;
 
     private viewporSize:Float32Array;
+    private metaballsPositions:Float32Array;
 
     setup() {
         console.log('setup');
@@ -59,6 +60,38 @@ export class MainGame extends App {
             byteSize, // two 4 byte float components per vertex
             0 // the stride, the distance in bytes from the end of current position to the next position
             );
+
+        // https://stackoverflow.com/questions/9046643/webgl-create-texture
+        // Pass metaballs positions to the shader by using a texture 2d
+        const positions:any = [
+            // [x, y, r, 0]
+            [0, 0, 100, 0],
+            [400, 400, 120, 0],
+            [800, 300, 15, 0],
+            [100, 100, 35, 0],
+        ];
+        const textureData = new Float32Array(positions.flat());
+        const texture = this.GL.createTexture();
+        this.GL.bindTexture(this.GL.TEXTURE_2D, texture);
+        const level = 0;
+        const width = 4;
+        const height = 1;
+        // Note that in WebGL, contrary to OpenGL, you have to explicitly
+        // call getExtension before you can use an extension,
+        // like OES_texture_float. And then you want to pass
+        // gl.FLOAT as the type parameter to texImage2D.
+        const float_texture_ext = this.GL.getExtension('OES_texture_float');
+        if (float_texture_ext == null) throw 'OES_texture_float not supported';
+        this.GL.texImage2D(this.GL.TEXTURE_2D, level, this.GL.RGBA, width, height, 0, this.GL.RGBA, this.GL.FLOAT, textureData);
+        this.GL.texParameteri(this.GL.TEXTURE_2D, this.GL.TEXTURE_MAG_FILTER, this.GL.NEAREST);
+        this.GL.texParameteri(this.GL.TEXTURE_2D, this.GL.TEXTURE_MIN_FILTER, this.GL.NEAREST);
+        this.GL.bindTexture(this.GL.TEXTURE_2D, null);
+
+        // Passing metaballs positions to texture unit 1 instead of the default 0
+        this.GL.activeTexture(this.GL.TEXTURE1);
+        this.GL.bindTexture(this.GL.TEXTURE_2D, texture);
+        this.GL.uniform1i(this.GL.getUniformLocation(this.metaballsProgram, 'metaballsPositions'), 1);
+
         // draw triangles specified in setup() method
         this.updateDraw();
     }
@@ -81,7 +114,7 @@ export class MainGame extends App {
         {
             this.viewporSize[0] = this.canvas.width;
             this.viewporSize[1] = this.canvas.height;
-            const viewporSizeHandle = this.getUniformLocation(this.metaballsProgram, 'viewportSize');
+            const viewporSizeHandle = this.getUniformLocation(this.metaballsProgram, 'viewportSize', true);
             this.GL.uniform2fv(viewporSizeHandle, this.viewporSize);
             // draw triangles specified in setup() method
             // glUniformXXX should be after glUseProgram and before drawing anything.

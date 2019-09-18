@@ -1,6 +1,7 @@
 import { App } from './App';
-import { metaballShader } from './shaders/fragments';
+import { metaballShader, generateMetaballsShader } from './shaders/fragments';
 import { defaultVertextShader } from './shaders/vertex';
+import { MetaballsShaderInfo } from './types';
 
 
 /**
@@ -18,7 +19,9 @@ export class MainGame extends App {
     setup() {
         console.log('setup');
         this.vertexShader = this.compileShader(defaultVertextShader, this.GL.VERTEX_SHADER);
-        this.metaballsShader = this.compileShader(metaballShader, this.GL.FRAGMENT_SHADER);
+
+        const metaballsShaderInfo:MetaballsShaderInfo = generateMetaballsShader(4);
+        this.metaballsShader = this.compileShader(metaballsShaderInfo.shaderSource, this.GL.FRAGMENT_SHADER);
         this.metaballsProgram = this.GL.createProgram();
         this.GL.attachShader(this.metaballsProgram, this.vertexShader);
         this.GL.attachShader(this.metaballsProgram, this.metaballsShader);
@@ -74,8 +77,8 @@ export class MainGame extends App {
         const texture = this.GL.createTexture();
         this.GL.bindTexture(this.GL.TEXTURE_2D, texture);
         const level = 0;
-        const width = 4;
-        const height = 1;
+        const width = metaballsShaderInfo.textureDimensions.width;
+        const height = metaballsShaderInfo.textureDimensions.height;
         // Note that in WebGL, contrary to OpenGL, you have to explicitly
         // call getExtension before you can use an extension,
         // like OES_texture_float. And then you want to pass

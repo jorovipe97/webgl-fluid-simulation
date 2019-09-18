@@ -29,6 +29,8 @@ function init() {
  * The loop function
  */
 function render() {
+    // See this to compute the delta time and the elapsed by using
+    // the request animation frame https://stackoverflow.com/questions/25612452/html5-canvas-game-loop-delta-time-calculations
     game.loop();
     requestAnimationFrame(render);
 }

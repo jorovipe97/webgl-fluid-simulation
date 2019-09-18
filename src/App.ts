@@ -10,8 +10,10 @@ export class App
     // TODO: Add time and delta time field to this class
     protected GL:WebGLRenderingContext;
     protected canvas:HTMLCanvasElement;
+
+
     protected deltaTime:number;
-    protected time:number;
+    protected elapsedTime:number;
     constructor(glContext: WebGLRenderingContext, canvasElement:HTMLCanvasElement) {
         this.GL = glContext;
         this.canvas = canvasElement;

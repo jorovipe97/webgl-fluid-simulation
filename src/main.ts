@@ -15,12 +15,48 @@ export class MainGame extends App {
 
     private viewporSize:Float32Array;
     private metaballsPositions:Float32Array;
+    private metaballsTexture:WebGLTexture;
+    private shaderInfo:MetaballsShaderInfo;
+    private metaballsVelocity:number[][] = []
 
     setup() {
         console.log('setup');
+        // https://stackoverflow.com/questions/9046643/webgl-create-texture
+        // Pass metaballs positions to the shader by using a texture 2d
+        const particlesCount = 16;
+        for (let i = 0; i < particlesCount; i++) {
+            
+        }
+        const positions:any = [
+            // [x, y, r, 0]
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
+        ];
+        positions.forEach(() => {
+            this.metaballsVelocity.push([
+                Math.random()*10 - 5, // vx
+                Math.random()*10 - 5 // vy
+            ]);
+        });
+        this.metaballsPositions = new Float32Array(positions.flat());
         this.vertexShader = this.compileShader(defaultVertextShader, this.GL.VERTEX_SHADER);
-
-        const metaballsShaderInfo:MetaballsShaderInfo = generateMetaballsShader(4);
+        // each metaball has 4 components
+        const metaballsShaderInfo:MetaballsShaderInfo = generateMetaballsShader(this.metaballsPositions.length / 4);
+        this.shaderInfo = metaballsShaderInfo;
         this.metaballsShader = this.compileShader(metaballsShaderInfo.shaderSource, this.GL.FRAGMENT_SHADER);
         this.metaballsProgram = this.GL.createProgram();
         this.GL.attachShader(this.metaballsProgram, this.vertexShader);
@@ -64,18 +100,8 @@ export class MainGame extends App {
             0 // the stride, the distance in bytes from the end of current position to the next position
             );
 
-        // https://stackoverflow.com/questions/9046643/webgl-create-texture
-        // Pass metaballs positions to the shader by using a texture 2d
-        const positions:any = [
-            // [x, y, r, 0]
-            [0, 0, 100, 0],
-            [400, 400, 120, 0],
-            [800, 300, 15, 0],
-            [100, 100, 35, 0],
-        ];
-        const textureData = new Float32Array(positions.flat());
-        const texture = this.GL.createTexture();
-        this.GL.bindTexture(this.GL.TEXTURE_2D, texture);
+        this.metaballsTexture = this.GL.createTexture();
+        this.GL.bindTexture(this.GL.TEXTURE_2D, this.metaballsTexture);
         const level = 0;
         const width = metaballsShaderInfo.textureDimensions.width;
         const height = metaballsShaderInfo.textureDimensions.height;
@@ -85,14 +111,14 @@ export class MainGame extends App {
         // gl.FLOAT as the type parameter to texImage2D.
         const float_texture_ext = this.GL.getExtension('OES_texture_float');
         if (float_texture_ext == null) throw 'OES_texture_float not supported';
-        this.GL.texImage2D(this.GL.TEXTURE_2D, level, this.GL.RGBA, width, height, 0, this.GL.RGBA, this.GL.FLOAT, textureData);
+        this.GL.texImage2D(this.GL.TEXTURE_2D, level, this.GL.RGBA, width, height, 0, this.GL.RGBA, this.GL.FLOAT, this.metaballsPositions);
         this.GL.texParameteri(this.GL.TEXTURE_2D, this.GL.TEXTURE_MAG_FILTER, this.GL.NEAREST);
         this.GL.texParameteri(this.GL.TEXTURE_2D, this.GL.TEXTURE_MIN_FILTER, this.GL.NEAREST);
         this.GL.bindTexture(this.GL.TEXTURE_2D, null);
 
         // Passing metaballs positions to texture unit 1 instead of the default 0
         this.GL.activeTexture(this.GL.TEXTURE1);
-        this.GL.bindTexture(this.GL.TEXTURE_2D, texture);
+        this.GL.bindTexture(this.GL.TEXTURE_2D, this.metaballsTexture);
         this.GL.uniform1i(this.GL.getUniformLocation(this.metaballsProgram, 'metaballsPositions'), 1);
 
         // draw triangles specified in setup() method
@@ -101,8 +127,52 @@ export class MainGame extends App {
 
     loop() {
         // console.log('loop');
+        for (let i = 0; i < this.metaballsPositions.length; i++) {
+            const xId = 4 * i + 0;
+            const yId = 4 * i + 1;
+            const rId = 4 * i + 2;
+            const v = this.metaballsVelocity[Math.floor(i / 4)];
+            let x = this.metaballsPositions[xId];
+            let y = this.metaballsPositions[yId];
+            let r = this.metaballsPositions[rId];
+            let vx = v[0];
+            let vy = v[1];
 
-        // this.updateDraw();
+            x += vx;
+            y += vy;
+
+            if (x + r > this.viewporWidth) {
+                x = this.viewporWidth - r;
+                vx = -Math.abs(vx);
+            } else if (x - r < 0) {
+                x = r + 1;
+                vx = Math.abs(vx);
+            }
+
+            if (y + r > this.viewporHeight) {
+                y = this.viewporHeight - r;
+                vy = -Math.abs(vy);
+            } else if (y - r < 0) {
+                y = r + 1;
+                vy = Math.abs(vy);
+            }
+
+            this.metaballsPositions[xId] = x;
+            this.metaballsPositions[yId] = y;
+            this.metaballsPositions[rId] = r;
+            v[0] = vx;
+            v[1] = vy;
+        }
+
+        // Passing metaballs positions to texture unit 1 instead of the default 0
+        // unit texture and texture was binded in the setup
+        // this.GL.activeTexture(this.GL.TEXTURE1);
+        // this.GL.bindTexture(this.GL.TEXTURE_2D, this.metaballsTexture);
+        // this.GL.uniform1i(this.GL.getUniformLocation(this.metaballsProgram, 'metaballsPositions'), 1);
+        const level = 0;
+        this.GL.texImage2D(this.GL.TEXTURE_2D, level, this.GL.RGBA, this.shaderInfo.textureDimensions.width, this.shaderInfo.textureDimensions.height, 0, this.GL.RGBA, this.GL.FLOAT, this.metaballsPositions);
+
+        this.updateDraw();
     }
 
     // onResize gets called before and after setup

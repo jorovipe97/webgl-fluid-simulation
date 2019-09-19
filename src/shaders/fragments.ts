@@ -31,6 +31,7 @@ void main(){
     // Iterate metaballs
     for (int j = 0; j < height; j++)
     {
+        float v = 0.0;
         for (int i = 0; i < width; i++)
         {
             vec2 positionUv = vec2(float(i) / float(width), float(j) / float(height));
@@ -38,10 +39,16 @@ void main(){
             float dx = metaballPosition.x - gl_FragCoord.x;
             float dy = metaballPosition.y - gl_FragCoord.y;
             float r = metaballPosition.z;
-            if (dx*dx + dy*dy < r*r)
-            {
-                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-            }
+            v += r*r/(dx*dx + dy*dy);
+            // if (dx*dx + dy*dy < r*r)
+            // {
+            //     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+            // }
+        }
+        if (v > 1.0) {
+            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        } else {
+            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
         }
     }
 }

@@ -4,6 +4,8 @@ import { App } from './App';
 const canvas:HTMLCanvasElement = <HTMLCanvasElement> document.getElementById('mainCanvas');
 let gl:WebGLRenderingContext;
 let game:App;
+let elapsedTime:number;
+let deltaTime:number;
 
 function init() {
     // Initialise WebGL 
@@ -23,12 +25,13 @@ function init() {
     onResize();
     game.setup();
     onResize();
-    render();
+    render(0);
 }
 /**
  * The loop function
  */
-function render() {
+function render(now:number) {
+    game.elapsedTime = now;
     // See this to compute the delta time and the elapsed by using
     // the request animation frame https://stackoverflow.com/questions/25612452/html5-canvas-game-loop-delta-time-calculations
     game.loop();
@@ -40,6 +43,8 @@ function onResize() {
     canvas.height = window.innerHeight;
     const x = 0;
     const y = 0;
+    game.viewporWidth = canvas.width;
+    game.viewporHeight = canvas.height;
     gl.viewport(x, y, canvas.width, canvas.height);
     game.onResize();
 }

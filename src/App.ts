@@ -12,8 +12,16 @@ export class App
     protected canvas:HTMLCanvasElement;
 
 
-    protected deltaTime:number;
-    protected elapsedTime:number;
+    viewporWidth:number;
+    viewporHeight:number;
+    /**
+     * Not implemented yet
+     */
+    deltaTime:number;
+    /**
+     * Elapsed time in milliseconds
+     */
+    elapsedTime:number;
     constructor(glContext: WebGLRenderingContext, canvasElement:HTMLCanvasElement) {
         this.GL = glContext;
         this.canvas = canvasElement;

@@ -8,8 +8,11 @@ export function generateMetaballsShader(metaballsCount:number):MetaballsShaderIn
         throw 'metaballsCount argument must be a power of two';
     }
 
-    const width = countLog2;
-    const height = countLog2;
+    // texture won't be always square textures
+    const halfLog = countLog2 / 2;
+    const width = 2 ** Math.floor(halfLog);
+    const height = 2 ** Math.ceil(halfLog);
+    console.log(width, height);
 
     // #region Shader Source
     const shaderSource = `
@@ -29,9 +32,9 @@ void main(){
 
     gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
     // Iterate metaballs
+    float v = 0.0;
     for (int j = 0; j < height; j++)
     {
-        float v = 0.0;
         for (int i = 0; i < width; i++)
         {
             vec2 positionUv = vec2(float(i) / float(width), float(j) / float(height));
@@ -45,12 +48,24 @@ void main(){
             //     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
             // }
         }
-        if (v > 1.0) {
-            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-        } else {
-            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-        }
     }
+
+    float smothedvalue = smoothstep(
+        0.0,
+        10.0,
+        v
+    );
+    gl_FragColor = vec4(clamp(smothedvalue, 0.0, 1.0), 0.0, 0.0, 1.0);
+    // gl_FragColor = smoothstep(
+    //     vec4(0.0, 0.0, 0.0, 1.0), // edge 0
+    //     vec4(2.0, 0.0, 0.0, 1.0), // edge 1
+    //     vec4(v, 0.0, 0.0, 1.0)
+    // );
+    // if (v > 1.0) {
+    //     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    // } else {
+    //     gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    // }
 }
     `;
     // #endregion Shader Source

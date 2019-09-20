@@ -17,42 +17,28 @@ export class MainGame extends App {
     private metaballsPositions:Float32Array;
     private metaballsTexture:WebGLTexture;
     private shaderInfo:MetaballsShaderInfo;
-    private metaballsVelocity:number[][] = []
+    private metaballsVelocity:number[][] = [];
+    private positions:any = [];
 
     setup() {
         console.log('setup');
         // https://stackoverflow.com/questions/9046643/webgl-create-texture
         // Pass metaballs positions to the shader by using a texture 2d
-        const particlesCount = 16;
+        const particlesCount = 2 ** 4;
         for (let i = 0; i < particlesCount; i++) {
-            
-        }
-        const positions:any = [
-            // [x, y, r, 0]
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-            [Math.random()*this.viewporWidth, Math.random()*this.viewporHeight, Math.random()*100, 0],
-        ];
-        positions.forEach(() => {
+            var radius = Math.random() * 60 + 10;
+            this.positions.push([
+                Math.random()*(this.viewporWidth - 2 * radius),
+                Math.random()*(this.viewporHeight - 2 * radius + radius),
+                radius,
+                0
+            ]);
             this.metaballsVelocity.push([
                 Math.random()*10 - 5, // vx
                 Math.random()*10 - 5 // vy
             ]);
-        });
-        this.metaballsPositions = new Float32Array(positions.flat());
+        }
+        this.metaballsPositions = new Float32Array(this.positions.flat());
         this.vertexShader = this.compileShader(defaultVertextShader, this.GL.VERTEX_SHADER);
         // each metaball has 4 components
         const metaballsShaderInfo:MetaballsShaderInfo = generateMetaballsShader(this.metaballsPositions.length / 4);
@@ -127,11 +113,12 @@ export class MainGame extends App {
 
     loop() {
         // console.log('loop');
-        for (let i = 0; i < this.metaballsPositions.length; i++) {
+        for (let i = 0; i < this.positions.length; i++) {
             const xId = 4 * i + 0;
             const yId = 4 * i + 1;
             const rId = 4 * i + 2;
-            const v = this.metaballsVelocity[Math.floor(i / 4)];
+            const id = i;
+            const v = this.metaballsVelocity[id];
             let x = this.metaballsPositions[xId];
             let y = this.metaballsPositions[yId];
             let r = this.metaballsPositions[rId];

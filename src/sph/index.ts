@@ -104,3 +104,62 @@ export function computeAcceleration(state:SystemState, parameters:SystemParamete
         }
     }
 }
+
+export function leapfrogStep(state:SystemState, dt:number) {
+    const { a, vh, v, x, n } = state;
+
+    // TODO: Use the integer steps formula for the leapfrog
+    // the integer step formula are literally the kinematic equations
+    // which use the taylor therom to describe de position in moment t.
+    // see: https://www.algorithm-archive.org/contents/verlet_integration/verlet_integration.html
+    // this will save us a for loop
+
+    for (let i = 0; i < 2*n; ++i) vh[i] += a[i] * dt;
+    for (let i = 0; i < 2*n; ++i) v[i] = vh[i] + a[i] * dt / 2;
+    for (let i = 0; i < 2*n; ++i) x[i] += vh[i] * dt;
+
+    reflectBoundaryConditions(state);
+}
+
+/**
+ * At the first step, the leapfrog iteration only has the initial velocities v0, so we
+ * need to do something special.
+ * @param state 
+ * @param dt 
+ */
+export function leapfrogStart(state:SystemState, dt:number) {
+    const { a, vh, v, x, n } = state;
+
+    for (let i = 0; i < 2*n; ++i) vh[i] = v[i] + a[i] * dt / 2;
+    for (let i = 0; i < 2*n; ++i) v[i] += a[i] * dt;
+    for (let i = 0; i < 2*n; ++i) x[i] += vh[i] * dt;
+    reflectBoundaryConditions(state);
+}
+
+export function reflectBoundaryConditions(state:SystemState) {
+
+}
+
+export function dampReflect(which:number, barrier:number, x:any, v:any, vh:any) {
+    // Coefficient of resitiution
+    const DAMP = 0.75;
+    // Ignore degenerate cases
+    if (v[which] == 0)
+        return;
+
+    // Scale back the distance traveled based on time from collision
+    const tbounce = (x[which]-barrier)/v[which];
+    // the (1-DAMP) is used to make computations taking into acount
+    // the damped speed in a moment in which speed hasn't been damped yet
+    x[0] -= v[0]*(1-DAMP)*tbounce;
+    x[1] -= v[1]*(1-DAMP)*tbounce;
+
+    // Reflect the position and velocity
+    x[which] = 2*barrier-x[which];
+    v[which] = -v[which];
+    vh[which] = -vh[which];
+
+    // Damp the velocities
+    v[0] *= DAMP; vh[0] *= DAMP;
+    v[1] *= DAMP; vh[1] *= DAMP;
+}

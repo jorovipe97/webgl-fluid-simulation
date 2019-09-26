@@ -38,3 +38,11 @@ export interface SystemState {
     v:Float32Array, /* Velocities (full step) */
     a:Float32Array /* Acceleration */
 }
+
+/**
+ * we define the initial geometry of the fluid in terms of an indicator function
+ * that is one for points in the domain occupied by fluid and zero elsewhere
+ */
+export interface IndicatorFunction {
+    (x:number, y:number): boolean;
+}

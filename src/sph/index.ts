@@ -1,7 +1,8 @@
 import { SystemParameters, SystemState, IndicatorFunction } from '../types';
+import { defaultParameters } from './parameters';
 
-export function getParameters(parameters:SystemParameters) {
-    throw 'Not implemented';
+export function getParameters():SystemParameters {
+    return defaultParameters;
 }
 
 export function allocState(n:number):SystemState {
@@ -42,7 +43,7 @@ export function computeDensity(state:SystemState, parameters:SystemParameters) {
     for (let i = 0; i < n; i++) {
         rho[i] += C2;
         // iterate each other particle
-        for (let j = i + 1; i < n; j++) {
+        for (let j = i + 1; j < n; j++) {
             const dx = x[2*i + 0] - x[2*j + 0];
             const dy = x[2*i + 1] - x[2*j + 1];
             const r2 = dx + dy;
@@ -92,7 +93,7 @@ export function computeAcceleration(state:SystemState, parameters:SystemParamete
     for (let i = 0; i < n; i++) {
         const rhoi = rho[i];
         // iterate each other particle
-        for (let j = i + 1; i < n; j++) {
+        for (let j = i + 1; j < n; j++) {
             const dx = x[2*i + 0] - x[2*j + 0];
             const dy = x[2*i + 1] - x[2*j + 1];
             const r2 = dx + dy;
@@ -255,7 +256,7 @@ export function normalizeMass(state:SystemState, parameters:SystemParameters):vo
     state.mass *= (rho0*rhos / rho2s);
 }
 
-function initParticles(parameters:SystemParameters):SystemState
+export function initParticles(parameters:SystemParameters):SystemState
 {
     const s:SystemState = placeParticles(parameters, circleIndicator);
     normalizeMass(s, parameters);

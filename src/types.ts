@@ -13,13 +13,34 @@ export interface Dimension {
  * These parameters are filled in by the getParams function
  */
 export interface SystemParameters {
-    npframe:number, // steps per frame
-    h:number, /* Particle size */
-    dt:number, /* Time step */
-    rho0:number, /* Reference density */
-    k:number, /* Bulk modulus */
-    mu:number, /* Viscosity */
-    g:number /* Gravity strength */
+    /**
+     * steps per frame
+     */
+    npframe:number,
+    /**
+     * Particle size
+     */
+    h:number,
+    /**
+     * Time step
+     */
+    dt:number,
+    /**
+     * Reference density
+     */
+    rho0:number,
+    /**
+     * Bulk modulus
+     */
+    k:number,
+    /**
+     * Viscosity
+     */
+    mu:number,
+    /**
+     * Gravity strength
+     */
+    g:number
 }
 
 /**

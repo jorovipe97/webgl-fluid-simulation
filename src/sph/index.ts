@@ -5,15 +5,23 @@ export function getParameters():SystemParameters {
     return defaultParameters;
 }
 
+function initializeArray(elementsCount:number, defaultValue:number = 0):number[] {
+    const array = [];
+    for (let i = 0; i < elementsCount; i++) {
+        array[i] = defaultValue;
+    }
+    return array;
+}
+
 export function allocState(n:number):SystemState {
     return {
         n: n,
         mass: 1,
-        rho: new Float32Array(n),
-        x: new Float32Array(n),
-        vh: new Float32Array(n),
-        v: new Float32Array(n),
-        a: new Float32Array(n)
+        rho: initializeArray(n), // only and entry per particle
+        x: initializeArray(n*2), // for x and y component
+        vh: initializeArray(n*2), // for x and y component
+        v: initializeArray(n*2), // for x and y component
+        a: initializeArray(n*2) // for x and y component
     };
 }
 
@@ -222,6 +230,11 @@ function placeParticles(parameters:SystemParameters, indicatorFunction:Indicator
         for (let y = 0; y < 1; y += hh)
             count += indicatorFunction(x,y) ? 1 : 0;
 
+    // the number of particles must be a power of two
+    // to render it on the gpu
+    const pow = Math.floor(Math.log2(count));
+    count = 2 ** pow;
+    console.log(count);
     // Populate the particle data structure
     const s:SystemState = allocState(count);
     let p = 0;
@@ -241,7 +254,10 @@ function placeParticles(parameters:SystemParameters, indicatorFunction:Indicator
 
 export function normalizeMass(state:SystemState, parameters:SystemParameters):void {
     state.mass = 1;
+    printCurrentState(state);
     computeDensity(state, parameters);
+    printCurrentState(state);
+
     // reference density
     let rho0 = parameters.rho0;
     let rho2s = 0;
@@ -261,4 +277,20 @@ export function initParticles(parameters:SystemParameters):SystemState
     const s:SystemState = placeParticles(parameters, circleIndicator);
     normalizeMass(s, parameters);
     return s;
+}
+
+export function getTextureData(textureData:Float32Array, state:SystemState, parameters:SystemParameters):void {
+    const n = state.n;
+    if (textureData.length !== (n * 4)) throw 'Texture data array must be an array of 4 times the number of particles on the system';
+
+    for (let i = 0; i < n; i++) {
+        textureData[4*i + 0] = state.x[2*i + 0];
+        textureData[4*i + 1] = state.x[2*i + 1];
+        textureData[4*i + 2] = parameters.h;
+        textureData[4*i + 3] = 0;
+    }
+}
+
+export function printCurrentState(state:SystemState):void {
+    console.log(JSON.parse(JSON.stringify(state)));
 }

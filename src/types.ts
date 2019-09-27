@@ -53,11 +53,11 @@ export interface SystemParameters {
 export interface SystemState {
     n:number, /* Number of particles */
     mass:number, /* Particle mass */
-    rho:Float32Array, /* Densities */
-    x:Float32Array, /* Positions */
-    vh:Float32Array, /* Velocities (half step) */
-    v:Float32Array, /* Velocities (full step) */
-    a:Float32Array /* Acceleration */
+    rho:number[], /* Densities */
+    x:number[], /* Positions */
+    vh:number[], /* Velocities (half step) */
+    v:number[], /* Velocities (full step) */
+    a:number[] /* Acceleration */
 }
 
 /**

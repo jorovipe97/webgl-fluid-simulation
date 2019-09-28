@@ -1,11 +1,13 @@
 import { MainGame } from './main';
 import { App } from './App';
+import { Position } from './types';
 
 const canvas:HTMLCanvasElement = <HTMLCanvasElement> document.getElementById('mainCanvas');
 let gl:WebGLRenderingContext;
 let game:App;
-let elapsedTime:number;
-let deltaTime:number;
+let elapsedTime:number = 0;
+let previousTime:number = 0;
+let deltaTime:number = 0;
 
 function init() {
     // Initialise WebGL 
@@ -31,10 +33,17 @@ function init() {
  * The loop function
  */
 function render(now:number) {
-    game.elapsedTime = now;
+    elapsedTime = now;
+    deltaTime = elapsedTime - previousTime;
+    
     // See this to compute the delta time and the elapsed by using
     // the request animation frame https://stackoverflow.com/questions/25612452/html5-canvas-game-loop-delta-time-calculations
+    game.FPS = 1000 / deltaTime;
+    game.elapsedTime = elapsedTime;
+    game.deltaTime = deltaTime;
+    previousTime = elapsedTime;
     game.loop();
+
     requestAnimationFrame(render);
 }
 
@@ -48,6 +57,21 @@ function onResize() {
     gl.viewport(x, y, canvas.width, canvas.height);
     game.onResize();
 }
+function getMousePos(canvas:HTMLCanvasElement, evt:any):Position {
+    if (!evt) {
+        console.log('getMousePos() didn\'t received an evt argument');
+    }
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+}
+function onMouseMove(event:any) {
+    game.mousePosition = getMousePos(canvas, event);
+}
+
+canvas.addEventListener('mousemove', onMouseMove);
 // Listen for window resize events
 window.addEventListener('resize', onResize);
 // Initialize application

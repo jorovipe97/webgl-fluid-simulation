@@ -1,5 +1,6 @@
 import { SystemParameters, SystemState, IndicatorFunction } from '../types';
 import { defaultParameters } from './parameters';
+import { boxIndicatorFactory, circleIndicatorFactory } from './indicatorsFunctions';
 
 export function getParameters():SystemParameters {
     return defaultParameters;
@@ -13,9 +14,10 @@ function initializeArray(elementsCount:number, defaultValue:number = 0):number[]
     return array;
 }
 
-export function allocState(n:number):SystemState {
+export function allocState(n:number, pixelsCount:number):SystemState {
     return {
-        n: n,
+        n,
+        pixelsCount,
         mass: 1,
         rho: initializeArray(n), // only and entry per particle
         x: initializeArray(n*2), // for x and y component
@@ -37,6 +39,7 @@ export function freeState(state:SystemState) {
 
 export function computeDensity(state:SystemState, parameters:SystemParameters) {
     const { n, rho, x, mass } = state;
+    // const h = parameters.metaballWidth;
     const h = parameters.h;
     const h2 = h*h;
     const h8 = h2*h2*h2*h2;
@@ -77,7 +80,9 @@ export function computeDensity(state:SystemState, parameters:SystemParameters) {
  */
 export function computeAcceleration(state:SystemState, parameters:SystemParameters) {
     // unpack basic parameters
-    const {h, rho0, k, mu, g} = parameters;
+    const { rho0, k, mu, g, minXAcceleration, maxXAcceleration } = parameters;
+    // const h = parameters.metaballWidth;
+    const h = parameters.h;
     const h2 = h*h;
     // unpack system state
     const { mass, rho, x, v, a, n } = state;
@@ -87,7 +92,10 @@ export function computeAcceleration(state:SystemState, parameters:SystemParamete
 
     // add gravity to each particle
     for (let i = 0; i < n; i++) {
-        a[2*i + 0] = 0; // x component
+        const randomFactor = Math.random();
+        const xAccel = minXAcceleration*(1-randomFactor) + maxXAcceleration*randomFactor;
+        a[2*i + 0] = xAccel; // x component
+        // a[2*i + 1] = -g; // y component
         a[2*i + 1] = -g; // y component
     }
 
@@ -104,7 +112,7 @@ export function computeAcceleration(state:SystemState, parameters:SystemParamete
         for (let j = i + 1; j < n; j++) {
             const dx = x[2*i + 0] - x[2*j + 0];
             const dy = x[2*i + 1] - x[2*j + 1];
-            const r2 = dx + dy;
+            const r2 = dx*dx + dy*dy;
             // is the j particle is in the radious h of i?
             if (r2 < h2) {
                 const rhoj = rho[j];
@@ -126,6 +134,10 @@ export function computeAcceleration(state:SystemState, parameters:SystemParamete
             }
         }
     }
+
+    // printCurrentState(state, 'computeAcceleration()');
+    // debugger;
+
 }
 
 export function leapfrogStep(state:SystemState, dt:number) {
@@ -168,10 +180,22 @@ export function reflectBoundaryConditions(state:SystemState) {
     const { x, n } = state;
     for (let i = 0; i < n; ++i) {
         const idx = i * 2;
-        if (x[0] < XMIN) dampReflect(0, XMIN, state, idx);
-        if (x[0] > XMAX) dampReflect(0, XMAX, state, idx);
-        if (x[1] < YMIN) dampReflect(1, YMIN, state, idx);
-        if (x[1] > YMAX) dampReflect(1, YMAX, state, idx);
+        if (x[idx + 0] < XMIN) dampReflect(0, XMIN, state, idx);
+        if (x[idx + 0] > XMAX) dampReflect(0, XMAX, state, idx);
+        if (x[idx + 1] < YMIN) dampReflect(1, YMIN, state, idx);
+        if (x[idx + 1] > YMAX) dampReflect(1, YMAX, state, idx);
+    }
+}
+
+export function reflectHorizontalLineObstacle(state:SystemState, ptx:number = 0.25, pty:number = 0.45, width:number = 0.15) {
+    const { x, n } = state;
+    for (let i = 0; i < n; ++i) {
+        const idx = i * 2;
+        const isXOverHorizontalLine = x[idx + 0] > ptx && x[idx + 0] < (ptx + width);
+        const isYTouchingLine = x[idx + 1] < pty;
+        if (isXOverHorizontalLine && isYTouchingLine) {
+            dampReflect(1, pty, state, idx);
+        }
     }
 }
 
@@ -201,24 +225,6 @@ export function dampReflect(which:number, barrier:number, state:SystemState, idx
     v[idx + 1] *= DAMP; vh[idx + 1] *= DAMP;
 }
 
-function boxIndicator(x:number, y:number):boolean {
-    return (x < 0.5) && (y < 0.5);
-}
-
-// TODO: Use a function factory to generalize the circle indicator
-function circleIndicator(x:number, y:number):boolean
-{
-    // center
-    const centerX = 0.5;
-    const centerY = 0.3;
-    const radius = 0.25;
-
-    const dx = (x-centerX);
-    const dy = (y-centerY);
-    const r2 = dx*dx + dy*dy;
-    return (r2 < radius*radius);
-}
-
 function placeParticles(parameters:SystemParameters, indicatorFunction:IndicatorFunction):SystemState {
     const h = parameters.h;
     // separation between particles will be of 0.3
@@ -232,15 +238,20 @@ function placeParticles(parameters:SystemParameters, indicatorFunction:Indicator
 
     // the number of particles must be a power of two
     // to render it on the gpu
-    const pow = Math.floor(Math.log2(count));
-    count = 2 ** pow;
-    console.log(count);
+    console.log('count', count);
+    // Since it's possible that the count is not a power of 2
+    // I'll compute a the top-nearest count of pixels required
+    // to get transfer all the particles.
+    const pow = Math.ceil(Math.log2(count));
+    const texturePixelsCount = 2 ** pow;
+    // count = 2 ** pow;
+    console.log('texturePixels', texturePixelsCount);
     // Populate the particle data structure
-    const s:SystemState = allocState(count);
+    const s:SystemState = allocState(count, texturePixelsCount);
     let p = 0;
     for (let x = 0; x < 1; x += hh) {
         for (let y = 0; y < 1; y += hh) {
-            if (indicatorFunction(x,y)) {
+            if (indicatorFunction(x,y) && p < count) {
                 s.x[2*p+0] = x;
                 s.x[2*p+1] = y;
                 s.v[2*p+0] = 0;
@@ -254,9 +265,7 @@ function placeParticles(parameters:SystemParameters, indicatorFunction:Indicator
 
 export function normalizeMass(state:SystemState, parameters:SystemParameters):void {
     state.mass = 1;
-    printCurrentState(state);
     computeDensity(state, parameters);
-    printCurrentState(state);
 
     // reference density
     let rho0 = parameters.rho0;
@@ -274,23 +283,37 @@ export function normalizeMass(state:SystemState, parameters:SystemParameters):vo
 
 export function initParticles(parameters:SystemParameters):SystemState
 {
-    const s:SystemState = placeParticles(parameters, circleIndicator);
+    // Open gl shader coordinate system is on the first cartesian coordinate
+    const ptx = 0.25;
+    const pty = 0.5;
+    const width = 0.5;
+    const height = 0.5;
+    const s:SystemState = placeParticles(parameters, boxIndicatorFactory(ptx, pty, width, height));
+    // const centerX = 0.5;
+    // const centerY = 0.5;
+    // const radius = 0.25;
+    // const s:SystemState = placeParticles(parameters, circleIndicatorFactory(centerX, centerY, radius));
     normalizeMass(s, parameters);
+    printCurrentState(s, 'after normalizeMass()');
     return s;
 }
 
 export function getTextureData(textureData:Float32Array, state:SystemState, parameters:SystemParameters):void {
-    const n = state.n;
-    if (textureData.length !== (n * 4)) throw 'Texture data array must be an array of 4 times the number of particles on the system';
+    const { n, pixelsCount } = state;
+    if (textureData.length !== (pixelsCount * 4)) throw 'Texture data array must be an array of 4 times the number of pixelsCount on the system state instance';
 
     for (let i = 0; i < n; i++) {
         textureData[4*i + 0] = state.x[2*i + 0];
         textureData[4*i + 1] = state.x[2*i + 1];
-        textureData[4*i + 2] = parameters.h;
+        textureData[4*i + 2] = parameters.metaballWidth;
         textureData[4*i + 3] = 0;
     }
 }
 
-export function printCurrentState(state:SystemState):void {
-    console.log(JSON.parse(JSON.stringify(state)));
+export function printCurrentState(state:SystemState, description:string = undefined):void {
+    if (description) {
+        console.log(description, JSON.parse(JSON.stringify(state)));
+    } else {
+        console.log(JSON.parse(JSON.stringify(state)));
+    }
 }

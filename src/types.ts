@@ -22,6 +22,10 @@ export interface SystemParameters {
      */
     h:number,
     /**
+     * The particle width on visualization space
+     */
+    metaballWidth:number,
+    /**
      * Time step
      */
     dt:number,
@@ -40,7 +44,15 @@ export interface SystemParameters {
     /**
      * Gravity strength
      */
-    g:number
+    g:number,
+    /**
+     * The minimum random x acceleration for each particle
+     */
+    minXAcceleration:number,
+    /**
+     * The maximum random x acceleration for each particle
+     */
+    maxXAcceleration:number
 }
 
 /**
@@ -51,13 +63,39 @@ export interface SystemParameters {
  * simulation state.
  */
 export interface SystemState {
-    n:number, /* Number of particles */
-    mass:number, /* Particle mass */
-    rho:number[], /* Densities */
-    x:number[], /* Positions */
-    vh:number[], /* Velocities (half step) */
-    v:number[], /* Velocities (full step) */
-    a:number[] /* Acceleration */
+    /**
+     *  Number of particles
+    */
+    n:number,
+    /**
+     * Number of pixels required to save all the particles information
+     * into a power of 2 texture
+     */
+    pixelsCount:number,
+    /**
+     * Particle mass
+     */
+    mass:number,
+    /**
+     * Densities
+     */
+    rho:number[],
+    /**
+     * Positions
+     */
+    x:number[],
+    /**
+     * Velocities (half step)
+     */
+    vh:number[],
+    /**
+     * Velocities (full step)
+     */
+    v:number[],
+    /**
+     * Acceleration
+     */
+    a:number[]
 }
 
 /**
@@ -67,3 +105,8 @@ export interface SystemState {
 export interface IndicatorFunction {
     (x:number, y:number): boolean;
 }
+
+export interface Position {
+    x:number,
+    y:number
+};

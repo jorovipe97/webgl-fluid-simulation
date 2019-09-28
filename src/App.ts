@@ -1,4 +1,4 @@
-
+import { Position } from './types';
 
 /**
  * This base class is the interface with the index.ts file
@@ -12,10 +12,12 @@ export class App
     protected canvas:HTMLCanvasElement;
 
 
+    mousePosition:Position = null;
     viewporWidth:number;
     viewporHeight:number;
+    FPS:number;
     /**
-     * Not implemented yet
+     * Time in ms since last frame
      */
     deltaTime:number;
     /**

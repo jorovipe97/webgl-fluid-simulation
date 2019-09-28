@@ -1,11 +1,11 @@
 import { MetaballsShaderInfo } from '../types';
 
 
-export function generateMetaballsShader(metaballsCount:number):MetaballsShaderInfo {
+export function generateMetaballsShader(particlesCount:number, pixelsCount:number):MetaballsShaderInfo {
     // checks if metaballs count is a power of 2
-    const countLog2 = Math.log2(metaballsCount);
+    const countLog2 = Math.log2(pixelsCount);
     if ((countLog2 - Math.floor(countLog2)) > 0) {
-        throw 'metaballsCount argument must be a power of two';
+        throw 'pixelsCount argument must be a power of two';
     }
 
     // texture won't be always square textures
@@ -26,6 +26,7 @@ uniform sampler2D metaballsPositions;
 // TODO: Pass width and height before shader compilation
 const int width = ${width};
 const int height = ${height};
+const int particlesCount = ${particlesCount};
 
 void main(){
     vec2 uv = gl_FragCoord.xy / viewportSize.xy;
@@ -33,14 +34,16 @@ void main(){
     gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
     // Iterate metaballs
     float v = 0.0;
+    int currentPixel = 0;
     for (int j = 0; j < height; j++)
     {
         for (int i = 0; i < width; i++)
         {
+            if (++currentPixel > particlesCount) break;
             vec2 positionUv = vec2(float(i) / float(width), float(j) / float(height));
             vec4 metaballPosition = texture2D(metaballsPositions, positionUv);
-            float dx = metaballPosition.x - gl_FragCoord.x;
-            float dy = metaballPosition.y - gl_FragCoord.y;
+            float dx = metaballPosition.x * viewportSize.x - gl_FragCoord.x;
+            float dy = metaballPosition.y * viewportSize.y - gl_FragCoord.y;
             float r = metaballPosition.z;
             v += r*r/(dx*dx + dy*dy);
             // if (dx*dx + dy*dy < r*r)
@@ -50,22 +53,23 @@ void main(){
         }
     }
 
-    float smothedvalue = smoothstep(
-        0.0,
-        10.0,
-        v
-    );
-    gl_FragColor = vec4(clamp(smothedvalue, 0.0, 1.0), 0.0, 0.0, 1.0);
-    // gl_FragColor = smoothstep(
-    //     vec4(0.0, 0.0, 0.0, 1.0), // edge 0
-    //     vec4(2.0, 0.0, 0.0, 1.0), // edge 1
-    //     vec4(v, 0.0, 0.0, 1.0)
+    // float smothedvalue = smoothstep(
+    //     0.0,
+    //     10.0,
+    //     v
     // );
-    // if (v > 1.0) {
-    //     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    // } else {
-    //     gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-    // }
+    // gl_FragColor = vec4(clamp(smothedvalue, 0.0, 1.0), 0.0, 0.0, 1.0);
+
+    if (gl_FragCoord.x > viewportSize.x * 0.5) {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    }
+    // gl_FragColor = vec4(uv.x, 0.0, 0.0, 1.0);
+
+    if (v > 1.0) {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    } else {
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    }
 }
     `;
     // #endregion Shader Source

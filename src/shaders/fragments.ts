@@ -1,5 +1,7 @@
 import { MetaballsShaderInfo } from '../types';
-
+// TODO: Pass particle velocity
+// TODO: Pass color presets
+// TODO: Support change of number of particles from the gui
 
 export function generateMetaballsShader(particlesCount:number, pixelsCount:number):MetaballsShaderInfo {
     // checks if metaballs count is a power of 2
@@ -13,7 +15,7 @@ export function generateMetaballsShader(particlesCount:number, pixelsCount:numbe
     const width = 2 ** Math.floor(halfLog);
     const height = 2 ** Math.ceil(halfLog);
     console.log(width, height);
-
+// TODO: Add a tail in the oposite direction of the particle velocity
     const waterDropFunction = `
 float gaussFalloff( float dist, float radius )
 {
@@ -32,6 +34,11 @@ vec3 blendAdd(vec3 base, vec3 blend, float opacity) {
     return (blendAdd(base, blend) * opacity + base * (1.0 - opacity));
 }
 
+vec3 blendAlpha(vec4 base, vec4 over)
+{
+    return over.rgb * over.a + base.rgb * (1. - over.a);
+}
+
 vec4 waterDrop( vec4 texel, float distToCenter, float radius ) {
     vec4 color = vec4(0.0);
     // factor will be approached to 0 if point is close to center
@@ -40,17 +47,23 @@ vec4 waterDrop( vec4 texel, float distToCenter, float radius ) {
     float r = distToCenter;
     // outer shadow
     float hardness1 = 150.0;
+    // float hardness1 = 1.0;
     float factor = hardness1 * gaussFalloff(r, radius);
     vec4 dropColor = vec4(0., 1., 0., 1.0);
 
     // inner shadow (closer to the particle center)
-    float hardness2 = 10.0;
+    float hardness2 = 1.0;
     float factor2 = hardness2 * gaussFalloff(r, radius);
     vec4 dropColor2 = vec4(1.000, 0.000, 0., 1.0);
 
     vec4 color1 = mix(texel, dropColor, max(1.0-factor, 0.0));
     vec4 color2 = mix(texel, dropColor2, max(1.0-factor2, 0.0));
     color.rgb = blendAdd(color1.rgb, color2.rgb, 0.3);
+
+    if (distToCenter < radius) {
+        color.a = 1.;
+    }
+
     return color;
 }
     `;
@@ -74,11 +87,13 @@ ${waterDropFunction}
 void main() {
     vec2 uv = gl_FragCoord.xy / viewportSize.xy;
 
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    vec4 sky1 = vec4(0.282, 0.820, 0.800, 1.);
+    vec4 sky2 = vec4(0.000, 0.808, 0.720, 1.);
+    vec4 baseColor = mix(sky1, sky2, uv.x);
+
     // Iterate metaballs
     float v = 0.0;
     int currentPixel = 0;
-    vec4 drops = vec4(0., 0., 0., 1.);
     for (int j = 0; j < height; j++)
     {
         for (int i = 0; i < width; i++)
@@ -90,35 +105,31 @@ void main() {
             float dy = metaballPosition.y * viewportSize.y - gl_FragCoord.y;
             float r = metaballPosition.z;
             v += r*r/(dx*dx + dy*dy);
-            drops = waterDrop(vec4(0., 0., 0., 1.), sqrt(dx*dx + dy*dy), r);
-            // if (dx*dx + dy*dy < r*r)
-            // {
-            //     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-            // }
         }
     }
-    // drops /= float(particlesCount);
-
-    // float smothedvalue = smoothstep(
-    //     0.0,
-    //     10.0,
-    //     v
-    // );
-    // gl_FragColor = vec4(clamp(smothedvalue, 0.0, 1.0), 0.0, 0.0, 1.0);
-
-    // if (gl_FragCoord.x > viewportSize.x * 0.5) {
-    //     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    // }
-    // gl_FragColor = vec4(uv.x, 0.0, 0.0, 1.0);
 
     if (v > 1.0) {
-        // gl_FragColor = vec4(0.0, 0., 1.0, 1.0);
-        gl_FragColor = drops;
-    } else {
-        vec4 sky1 = vec4(0., 0.6588, 1.0, 1.);
-        vec4 sky2 = vec4(0., 0.5921, 0.9019, 1.);
-        gl_FragColor = mix(sky1, sky2, uv.x);
+        baseColor = vec4(0.000, 0.749, 1.000, 1.0);
     }
+
+    currentPixel = 0;
+    for (int j = 0; j < height; j++)
+    {
+        for (int i = 0; i < width; i++)
+        {
+            if (++currentPixel > particlesCount) break;
+            vec2 positionUv = vec2(float(i) / float(width), float(j) / float(height));
+            vec4 metaballPosition = texture2D(metaballsPositions, positionUv);
+            float dx = metaballPosition.x * viewportSize.x - gl_FragCoord.x;
+            float dy = metaballPosition.y * viewportSize.y - gl_FragCoord.y;
+            float r = metaballPosition.z;
+            v += r*r/(dx*dx + dy*dy);
+            vec4 drops = waterDrop(vec4(0.275, 0.510, 0.706, 1.), sqrt(dx*dx + dy*dy), r);
+            baseColor.rgb = blendAlpha(baseColor, drops);
+        }
+    }
+
+    gl_FragColor = baseColor;
 }
     `;
     // #endregion Shader Source

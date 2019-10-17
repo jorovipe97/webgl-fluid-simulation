@@ -113,7 +113,7 @@ export class MainGame extends App {
     }
 
     loop() {
-        console.log(this.mousePosition);
+        // console.log(this.mousePosition);
         computeAcceleration(this.sphState, this.sphParameters);
         leapfrogStep(this.sphState, this.sphParameters.dt);
         // Move horizontal line by using mouse
@@ -125,7 +125,7 @@ export class MainGame extends App {
             reflectHorizontalLineObstacle(this.sphState);
         }
         getTextureData(this.textureData, this.sphState, this.sphParameters);
-        console.log(this.FPS);
+        // console.log(this.FPS);
         // Passing metaballs positions to texture unit 1 instead of the default 0 just for fun
         // unit texture and texture were binded in the setup
         this.GL.activeTexture(this.GL.TEXTURE1);

@@ -14,10 +14,6 @@ export interface Dimension {
  */
 export interface SystemParameters {
     /**
-     * steps per frame
-     */
-    npframe:number,
-    /**
      * Particle radius for using on the simulation computations
      */
     h:number,

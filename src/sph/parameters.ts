@@ -2,7 +2,6 @@ import { SystemParameters } from '../types';
 
 
 export const defaultParameters:SystemParameters = {
-    npframe: 100,
     dt: 1e-2,
     // h: 3.2e-2,
     h: 7e-2,

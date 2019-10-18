@@ -1,6 +1,7 @@
 import { MainGame } from './main';
 import { App } from './App';
 import { Position } from './types';
+import initUI from './ui/index';
 
 const canvas:HTMLCanvasElement = <HTMLCanvasElement> document.getElementById('mainCanvas');
 let gl:WebGLRenderingContext;
@@ -9,6 +10,7 @@ let elapsedTime:number = 0;
 let previousTime:number = 0;
 let deltaTime:number = 0;
 
+// #region engine logic
 function init() {
     // Initialise WebGL 
     try { 
@@ -46,7 +48,6 @@ function render(now:number) {
 
     requestAnimationFrame(render);
 }
-
 function onResize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -70,9 +71,12 @@ function getMousePos(canvas:HTMLCanvasElement, evt:any):Position {
 function onMouseMove(event:any) {
     game.mousePosition = getMousePos(canvas, event);
 }
-
 canvas.addEventListener('mousemove', onMouseMove);
 // Listen for window resize events
 window.addEventListener('resize', onResize);
 // Initialize application
 init();
+// #endregion engine logic
+
+// Initialize jquery, redux, etc logic
+initUI();

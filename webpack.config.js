@@ -23,6 +23,10 @@ module.exports = {
 	module: {
 		rules: [
 			{
+				test: /\.exec\.js$/,
+				use: [ 'script-loader' ]
+			},
+			{
 				test: /\.css$/,
 				use: [
 					'style-loader',

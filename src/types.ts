@@ -18,13 +18,13 @@ export interface SystemParameters {
      */
     npframe:number,
     /**
-     * Particle size
+     * Particle radius for using on the simulation computations
      */
     h:number,
     /**
-     * The particle width on visualization space
+     * The particle radius on viewport space for using on visualization
      */
-    metaballWidth:number,
+    metaballRadius:number,
     /**
      * Time step
      */

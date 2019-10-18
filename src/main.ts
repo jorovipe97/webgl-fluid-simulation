@@ -33,11 +33,9 @@ export class MainGame extends App {
 
         // https://stackoverflow.com/questions/9046643/webgl-create-texture
         // Pass metaballs positions to the shader by using a texture 2d
-        const particlesCount = this.sphState.n;
-        // this.metaballsPositions = new Float32Array(this.positions.flat());
         this.vertexShader = this.compileShader(defaultVertextShader, this.GL.VERTEX_SHADER);
         // each particle has 2 components
-        this.shaderInfo = generateMetaballsShader(particlesCount, this.sphState.pixelsCount);
+        this.shaderInfo = generateMetaballsShader(this.sphState, this.sphParameters);
         this.metaballsShader = this.compileShader(this.shaderInfo.shaderSource, this.GL.FRAGMENT_SHADER);
         this.metaballsProgram = this.GL.createProgram();
         this.GL.attachShader(this.metaballsProgram, this.vertexShader);

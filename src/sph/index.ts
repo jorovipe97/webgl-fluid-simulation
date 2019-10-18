@@ -304,10 +304,16 @@ export function getTextureData(textureData:Float32Array, state:SystemState, para
     if (textureData.length !== (pixelsCount * 4)) throw 'Texture data array must be an array of 4 times the number of pixelsCount on the system state instance';
 
     for (let i = 0; i < n; i++) {
-        textureData[4*i + 0] = state.x[2*i + 0];
-        textureData[4*i + 1] = state.x[2*i + 1];
-        textureData[4*i + 2] = parameters.metaballWidth;
-        textureData[4*i + 3] = 0;
+        textureData[4*i + 0] = state.x[2*i + 0]; // x, position
+        textureData[4*i + 1] = state.x[2*i + 1]; // y, position
+        // velocity half step back
+        // TODO: Check it out this
+        // velocity direction
+        // const vx = state.v[2*i + 0]; // x, velocity
+        // const vy = state.v[2*i + 1]; // y, velocity
+        // const vMag = Math.sqrt(vx*vx + vy*vy);
+        textureData[4*i + 2] = state.v[2*i + 0]; // x, velocity
+        textureData[4*i + 3] = state.v[2*i + 1]; // y, velocity
     }
 }
 

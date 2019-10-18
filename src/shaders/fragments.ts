@@ -55,13 +55,22 @@ void main() {
             v += r*r/(dx*dx + dy*dy);
 
             // draw speed tail
+            // speed tail point 1
+            float tailR = r * 0.7;
             vec2 velocity = -metaballPosition.zw;
             vec2 velocityDirection = normalize(velocity);
-            vec2 velocityTail = velocityDirection * 8. * length(velocity);
+            float speed = length(velocity);
+            vec2 velocityTail = velocityDirection * r * speed;
             float dxv = dx + velocityTail.x;
             float dyv = dy + velocityTail.y;
-            float tailR = r * 0.7;
             v += tailR*tailR/(dxv*dxv + dyv*dyv);
+
+            // speed tail point 2
+            float tailR2 = r * 0.5;
+            vec2 velocityTail2 = velocityDirection * (r + tailR) * speed;
+            float dxv2 = dx + velocityTail2.x;
+            float dyv2 = dy + velocityTail2.y;
+            v += tailR2*tailR2/(dxv2*dxv2 + dyv2*dyv2);
         }
     }
 

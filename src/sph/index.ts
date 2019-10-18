@@ -189,11 +189,12 @@ export function reflectBoundaryConditions(state:SystemState) {
 
 export function reflectHorizontalLineObstacle(state:SystemState, ptx:number = 0.25, pty:number = 0.45, width:number = 0.15) {
     const { x, n } = state;
+    const half = 0.5;
     for (let i = 0; i < n; ++i) {
         const idx = i * 2;
-        const isXOverHorizontalLine = x[idx + 0] > ptx && x[idx + 0] < (ptx + width);
-        const isYTouchingLine = x[idx + 1] < pty;
-        if (isXOverHorizontalLine && isYTouchingLine) {
+        const isXOverHorizontalLine = x[idx + 0] > (ptx - width * half) && x[idx + 0] < (ptx + width * half);
+        const isYUnderTheLine = x[idx + 1] < pty;
+        if (isXOverHorizontalLine && isYUnderTheLine) {
             dampReflect(1, pty, state, idx);
         }
     }

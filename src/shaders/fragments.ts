@@ -44,21 +44,22 @@ vec4 waterDrop( vec4 texel, float distToCenter, float radius ) {
     // factor will be approached to 0 if point is close to center
     // and aproached to 1 if is more distant
 
-    float r = distToCenter;
     // outer shadow
-    float hardness1 = 150.0;
+    float hardness1 = 20.0;
     // float hardness1 = 1.0;
-    float factor = hardness1 * gaussFalloff(r, radius);
-    vec4 dropColor = vec4(0., 1., 0., 1.0);
+    float factor = hardness1 * gaussFalloff(distToCenter, radius);
+    vec4 dropColor = vec4(0.000, 0.749, 1.000, 1.0);
 
     // inner shadow (closer to the particle center)
     float hardness2 = 1.0;
-    float factor2 = hardness2 * gaussFalloff(r, radius);
-    vec4 dropColor2 = vec4(1.000, 0.000, 0., 1.0);
+    float factor2 = hardness2 * gaussFalloff(distToCenter, radius);
+    vec4 dropColor2 = vec4(0., 0.5921, 0.9019, .5);
 
-    vec4 color1 = mix(texel, dropColor, max(1.0-factor, 0.0));
-    vec4 color2 = mix(texel, dropColor2, max(1.0-factor2, 0.0));
-    color.rgb = blendAdd(color1.rgb, color2.rgb, 0.3);
+    float f1 = max(1.0-factor, 0.0);
+    vec4 color1 = mix(texel, dropColor, f1);
+    float f2 = max(1.0-factor2, 0.0);
+    vec4 color2 = mix(texel, dropColor2, f2);
+    color.rgb = color2.rgb * (1.-f1) + color1.rgb * f1; // blendAdd(color1.rgb, color2.rgb, 0.3);
 
     if (distToCenter < radius) {
         color.a = 1.;
@@ -82,13 +83,11 @@ const int width = ${width};
 const int height = ${height};
 const int particlesCount = ${particlesCount};
 
-${waterDropFunction}
-
 void main() {
     vec2 uv = gl_FragCoord.xy / viewportSize.xy;
 
-    vec4 sky1 = vec4(0.282, 0.820, 0.800, 1.);
-    vec4 sky2 = vec4(0.000, 0.808, 0.720, 1.);
+    vec4 sky1 = vec4(0.1529, 0.2352, 0.4588, 1.);
+    vec4 sky2 = vec4(0.0980, 0.1647, 0.3372, 1.);
     vec4 baseColor = mix(sky1, sky2, uv.x);
 
     // Iterate metaballs
@@ -108,25 +107,26 @@ void main() {
         }
     }
 
+    // currentPixel = 0;
+    // for (int j = 0; j < height; j++)
+    // {
+    //     for (int i = 0; i < width; i++)
+    //     {
+    //         if (++currentPixel > particlesCount) break;
+    //         vec2 positionUv = vec2(float(i) / float(width), float(j) / float(height));
+    //         vec4 metaballPosition = texture2D(metaballsPositions, positionUv);
+    //         float dx = metaballPosition.x * viewportSize.x - gl_FragCoord.x;
+    //         float dy = metaballPosition.y * viewportSize.y - gl_FragCoord.y;
+    //         float r = metaballPosition.z;
+    //         v += r*r/(dx*dx + dy*dy);
+    //         // vec4 drops = waterDrop(vec4(0.000, 0.749, 1.000, 1.), sqrt(dx*dx + dy*dy), r);
+    //         vec4 drops = waterDrop(vec4(0.0352, 0.5176, 0.8901, 1.), sqrt(dx*dx + dy*dy), r);
+    //         baseColor.rgb = blendAlpha(baseColor, drops);
+    //     }
+    // }
+
     if (v > 1.0) {
         baseColor = vec4(0.000, 0.749, 1.000, 1.0);
-    }
-
-    currentPixel = 0;
-    for (int j = 0; j < height; j++)
-    {
-        for (int i = 0; i < width; i++)
-        {
-            if (++currentPixel > particlesCount) break;
-            vec2 positionUv = vec2(float(i) / float(width), float(j) / float(height));
-            vec4 metaballPosition = texture2D(metaballsPositions, positionUv);
-            float dx = metaballPosition.x * viewportSize.x - gl_FragCoord.x;
-            float dy = metaballPosition.y * viewportSize.y - gl_FragCoord.y;
-            float r = metaballPosition.z;
-            v += r*r/(dx*dx + dy*dy);
-            vec4 drops = waterDrop(vec4(0.275, 0.510, 0.706, 1.), sqrt(dx*dx + dy*dy), r);
-            baseColor.rgb = blendAlpha(baseColor, drops);
-        }
     }
 
     gl_FragColor = baseColor;

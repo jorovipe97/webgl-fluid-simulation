@@ -70,6 +70,7 @@ function getMousePos(canvas:HTMLCanvasElement, evt:any):Position {
 }
 function onMouseMove(event:any) {
     game.mousePosition = getMousePos(canvas, event);
+    console.log(game.mousePosition);
 }
 canvas.addEventListener('mousemove', onMouseMove);
 // Listen for window resize events

@@ -30,7 +30,8 @@ uniform sampler2D metaballsPositions;
 // TODO: Pass width and height before shader compilation
 const int width = ${width};
 const int height = ${height};
-const float r = ${radius.toFixed(1)}; // particle radius
+// const float r = ${radius.toFixed(1)}; // particle radius
+const float r = ${radius}; // particle radius
 const int particlesCount = ${particlesCount};
 
 void main() {
@@ -39,6 +40,8 @@ void main() {
     vec4 sky1 = vec4(0.1529, 0.2352, 0.4588, 1.);
     vec4 sky2 = vec4(0.0980, 0.1647, 0.3372, 1.);
     vec4 baseColor = mix(sky1, sky2, uv.x);
+
+    float rr = r * viewportSize.x;
 
     // Iterate metaballs
     float v = 0.0;
@@ -52,11 +55,11 @@ void main() {
             vec4 metaballPosition = texture2D(metaballsPositions, positionUv);
             float dx = metaballPosition.x * viewportSize.x - gl_FragCoord.x;
             float dy = metaballPosition.y * viewportSize.y - gl_FragCoord.y;
-            v += r*r/(dx*dx + dy*dy);
+            v += rr*rr/(dx*dx + dy*dy);
 
             // draw speed tail
             // speed tail point 1
-            float tailR = r * 0.7;
+            float tailR = rr * 0.7;
             vec2 velocity = -metaballPosition.zw;
             vec2 velocityDirection = normalize(velocity);
             float speed = length(velocity);
@@ -66,31 +69,13 @@ void main() {
             v += tailR*tailR/(dxv*dxv + dyv*dyv);
 
             // speed tail point 2
-            float tailR2 = r * 0.5;
+            float tailR2 = rr * 0.5;
             vec2 velocityTail2 = velocityDirection * (r + tailR) * speed;
             float dxv2 = dx + velocityTail2.x;
             float dyv2 = dy + velocityTail2.y;
             v += tailR2*tailR2/(dxv2*dxv2 + dyv2*dyv2);
         }
     }
-
-    // currentPixel = 0;
-    // for (int j = 0; j < height; j++)
-    // {
-    //     for (int i = 0; i < width; i++)
-    //     {
-    //         if (++currentPixel > particlesCount) break;
-    //         vec2 positionUv = vec2(float(i) / float(width), float(j) / float(height));
-    //         vec4 metaballPosition = texture2D(metaballsPositions, positionUv);
-    //         float dx = metaballPosition.x * viewportSize.x - gl_FragCoord.x;
-    //         float dy = metaballPosition.y * viewportSize.y - gl_FragCoord.y;
-    //         float r = metaballPosition.z;
-    //         v += r*r/(dx*dx + dy*dy);
-    //         // vec4 drops = waterDrop(vec4(0.000, 0.749, 1.000, 1.), sqrt(dx*dx + dy*dy), r);
-    //         vec4 drops = waterDrop(vec4(0.0352, 0.5176, 0.8901, 1.), sqrt(dx*dx + dy*dy), r);
-    //         baseColor.rgb = blendAlpha(baseColor, drops);
-    //     }
-    // }
 
     if (v > 1.0) {
         baseColor = vec4(0.000, 0.749, 1.000, 1.0);

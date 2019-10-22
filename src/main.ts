@@ -111,6 +111,7 @@ export class MainGame extends App {
     }
 
     loop() {
+        // console.log(this.FPS);
         // console.log(this.mousePosition);
         computeAcceleration(this.sphState, this.sphParameters);
         leapfrogStep(this.sphState, this.sphParameters.dt);

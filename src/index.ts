@@ -3,7 +3,7 @@ import { App } from './App';
 import { Position } from './types';
 import initUI from './ui/index';
 
-const canvas:HTMLCanvasElement = <HTMLCanvasElement> document.getElementById('mainCanvas');
+let canvas:HTMLCanvasElement;
 let gl:WebGLRenderingContext;
 let game:App;
 let elapsedTime:number = 0;
@@ -12,6 +12,7 @@ let deltaTime:number = 0;
 
 // #region engine logic
 function init() {
+    canvas = <HTMLCanvasElement> document.getElementById('mainCanvas');
     // Initialise WebGL 
     try { 
         gl = canvas.getContext('webgl');
@@ -26,10 +27,18 @@ function init() {
     // MainGame inherits from App, using some polymorphism
     // to ensure not to interact with high level components of the program
     game = new MainGame(gl, canvas);
+    const ratio = window.innerWidth / window.innerHeight;
+    canvas.width = 1920;
+    canvas.height = canvas.width / ratio;
+
+    canvas.addEventListener('mousemove', onMouseMove);
     onResize();
     game.setup();
     onResize();
     render(0);
+
+    // Initialize jquery, redux, etc logic
+    initUI();
 }
 /**
  * The loop function
@@ -49,8 +58,9 @@ function render(now:number) {
     requestAnimationFrame(render);
 }
 function onResize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    // canvas.width = window.innerWidth;
+    // canvas.height = window.innerHeight;
+    // console.log('ratio:', window.innerWidth/window.innerHeight);
     const x = 0;
     const y = 0;
     game.viewporWidth = canvas.width;
@@ -69,15 +79,17 @@ function getMousePos(canvas:HTMLCanvasElement, evt:any):Position {
     };
 }
 function onMouseMove(event:any) {
-    game.mousePosition = getMousePos(canvas, event);
-    console.log(game.mousePosition);
+    // mouse position on inner window screen coordinate system
+    const mousePosition = getMousePos(canvas, event);
+    // Tranform mouse position from window coordinates to canvas coordinates
+    const mousePositionCanvas = {
+        x: (mousePosition.x / window.innerWidth) * canvas.width,
+        y: (mousePosition.y / window.innerHeight) * canvas.height
+    }
+    game.mousePosition = mousePositionCanvas;
 }
-canvas.addEventListener('mousemove', onMouseMove);
 // Listen for window resize events
 window.addEventListener('resize', onResize);
 // Initialize application
-init();
+window.addEventListener('load', init);
 // #endregion engine logic
-
-// Initialize jquery, redux, etc logic
-initUI();

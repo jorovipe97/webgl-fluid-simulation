@@ -1,17 +1,43 @@
+import { ColorPalette, vec4 } from '../types';
+import { App } from '../App';
 const classie = require('./classie');
 
 let body:HTMLElement;
 let openButton:HTMLElement;
 let container:HTMLElement;
 let canvas:HTMLElement;
-let isOpen = false;
+let colorPairs:Array<HTMLElement>;
+
+const palettes:Array<ColorPalette> = [
+    new ColorPalette(
+        new vec4(0.1529, 0.2352, 0.4588, 1.),
+        new vec4(0.0980, 0.1647, 0.3372, 1.),
+        new vec4(0.000, 0.749, 1.000, 1.0)
+    )
+]
+
+const state = {
+    /**
+     * Is settings menu opened
+     */
+    isOpen: false,
+    prevColorPaletteIndex: 0,
+    colorPaletteIndex: 0,
+    currentPalette: palettes[0]
+};
 
 // this is the entry point for the ui logic
-export default function initUI () {
+// TODO: Decide wheter use App or MainGame class
+export default function initUI (simulation:App) {
     body = document.body;
     openButton = document.getElementById('open-button');
     container = document.querySelector('.container-fluid');
     canvas = document.getElementById('mainCanvas');
+    colorPairs = [
+        document.getElementById('color-option-1'),
+        document.getElementById('color-option-2'),
+        document.getElementById('color-option-3'),
+    ]
     initEvents();
 }
 
@@ -21,17 +47,31 @@ function initEvents () {
     // close the menu element if the target it´s not the menu element or one of its descendants..
     container.addEventListener('click', function (event) {
         const target = event.target;
-        if (isOpen && target === canvas) {
+        if (state.isOpen && target === canvas) {
             toggleMenu();
         }
     });
+
+    colorPairs.forEach((element) => {
+        element.addEventListener('click', selectColorPalette);
+    })
+}
+
+function selectColorPalette(event:MouseEvent) {
+    const target = <HTMLElement> event.target;
+    const idx = +target.getAttribute('data-position');
+    state.colorPaletteIndex = idx;
+    // remove the color-pair-selected class to all color paletes
+    classie.remove( colorPairs[state.prevColorPaletteIndex], 'color-pair-selected' );
+    classie.add( colorPairs[state.colorPaletteIndex], 'color-pair-selected' );
+    state.prevColorPaletteIndex = state.colorPaletteIndex;
 }
 
 function toggleMenu() {
-    if (isOpen) {
+    if (state.isOpen) {
         classie.remove( body, 'show-menu' );
     } else {
         classie.add( body, 'show-menu' );
     }
-    isOpen = !isOpen;
+    state.isOpen = !state.isOpen;
 }

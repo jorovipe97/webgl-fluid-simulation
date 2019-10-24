@@ -34,6 +34,14 @@ const int height = ${height};
 const float r = ${radius}; // particle radius
 const int particlesCount = ${particlesCount};
 
+struct ColorPalette {
+    vec4 sky1;
+    vec4 sky2;
+    vec4 dropColor;
+};
+
+uniform ColorPalette palette;
+
 void main() {
     vec2 uv = gl_FragCoord.xy / viewportSize.xy;
 

@@ -1,7 +1,7 @@
-import { MainGame } from './main';
+import { MainGame } from './sph/main';
 import { App } from './App';
 import { Position } from './types';
-import initUI from './ui/index';
+import { initUI, loopUI } from './ui/index';
 
 let canvas:HTMLCanvasElement;
 let gl:WebGLRenderingContext;
@@ -26,7 +26,8 @@ function init() {
 
     // MainGame inherits from App, using some polymorphism
     // to ensure not to interact with high level components of the program
-    game = new MainGame(gl, canvas);
+    const simulation = new MainGame(gl, canvas);
+    game = simulation;
     const ratio = window.innerWidth / window.innerHeight;
     canvas.width = 1920;
     canvas.height = canvas.width / ratio;
@@ -38,7 +39,7 @@ function init() {
     render(0);
 
     // Initialize jquery, redux, etc logic
-    initUI();
+    initUI(simulation);
 }
 /**
  * The loop function
@@ -55,6 +56,7 @@ function render(now:number) {
     previousTime = elapsedTime;
     game.loop();
 
+    loopUI();
     requestAnimationFrame(render);
 }
 function onResize() {

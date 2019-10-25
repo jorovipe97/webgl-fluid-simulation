@@ -23,8 +23,8 @@
                                         <i class="fas fa-check-circle"></i>
                                     </div>
                                     <div class="color-pair-shape color-pair-overlay" data-position="0"></div>
-                                    <div class="color-pair-left"></div><!--
-                                    --><div class="color-pair-right"></div>
+                                    <div class="color-pair-left" style="background-color: #1D2F5E;"></div><!--
+                                    --><div class="color-pair-right" style="background-color: #00BFFF;"></div>
                                 </a>
                                 <a id="color-option-2" href="#" class="color-pair">
                                     <div class="color-pair-shape color-pair-check">
@@ -50,11 +50,11 @@
                         </div>
                         <div class="form-group">
                             <label for="particle-radius-visualization-setup">Particle radius (for visualization)</label>
-                            <input id="particle-radius-visualization-setup" type="number" class="form-control" value="8">
+                            <input id="particle-radius-visualization-setup" type="number" class="form-control" value="0.00625">
                         </div>
                         <div class="form-group">
-                            <label for="max-particle-count-setup">Max particle count</label>
-                            <input id="max-particle-count-setup" type="number" class="form-control" value="100">
+                            <label for="max-particle-count-setup">Max particle count (-1 simulation decides)</label>
+                            <input id="max-particle-count-setup" type="number" class="form-control" value="-1">
                         </div>
                         <div>(Info) Particles count: <span id="particles-count-info" class="info-label">999</span></div>
                         <div>(Info) FPS: <span id="fps-info" class="info-label">99</span></div>

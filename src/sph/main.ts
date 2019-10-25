@@ -1,8 +1,8 @@
-import { App } from './App';
-import { metaballShader, generateMetaballsShader } from './shaders/fragments';
-import { defaultVertextShader } from './shaders/vertex';
-import { MetaballsShaderInfo, SystemState, SystemParameters } from './types';
-import { getParameters, initParticles, computeAcceleration, leapfrogStart, leapfrogStep, getTextureData, printCurrentState, reflectHorizontalLineObstacle } from './sph/index';
+import { App } from '../App';
+import { metaballShader, generateMetaballsShader } from '../shaders/fragments';
+import { defaultVertextShader } from '../shaders/vertex';
+import { MetaballsShaderInfo, SystemState, SystemParameters } from '../types';
+import { getParameters, initParticles, computeAcceleration, leapfrogStart, leapfrogStep, getTextureData, printCurrentState, reflectHorizontalLineObstacle } from './index';
 
 /**
  * This is the entry point of any game logic
@@ -20,8 +20,8 @@ export class MainGame extends App {
     private metaballsVelocity:number[][] = [];
     private textureData:Float32Array;
 
-    private sphState:SystemState;
-    private sphParameters:SystemParameters;
+    public sphState:SystemState;
+    public sphParameters:SystemParameters;
 
     setup() {
         console.log('setup');

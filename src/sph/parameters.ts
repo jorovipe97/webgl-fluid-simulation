@@ -1,5 +1,4 @@
-import { SystemParameters } from '../types';
-
+import { SystemParameters, ColorPalette, vec4 } from '../types';
 
 export const defaultParameters:SystemParameters = {
     dt: 1e-2,
@@ -14,3 +13,21 @@ export const defaultParameters:SystemParameters = {
     minXAcceleration: -5,
     maxXAcceleration: 5
 };
+
+export const palettes:ColorPalette[] = [
+    new ColorPalette(
+        new vec4(0.1529, 0.2352, 0.4588, 1.),
+        new vec4(0.0980, 0.1647, 0.3372, 1.),
+        new vec4(0.000, 0.749, 1.000, 1.0)
+    ),
+    new ColorPalette(
+        new vec4(1, 0, 0, 1.),
+        new vec4(0.9, 0, 0, 1.),
+        new vec4(0, 1, 0, 1.0)
+    ),
+    new ColorPalette(
+        new vec4(0, 0, 1, 1.),
+        new vec4(0, 0, 0.9, 1.),
+        new vec4(1, 0, 0, 1.0)
+    )
+];

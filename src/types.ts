@@ -1,6 +1,10 @@
 export class vec4 {
     constructor (public x:number = 0, public y:number = 0, public z:number = 0, public w:number = 0) {
     }
+
+    toArray ():number[] {
+        return [this.x, this.y, this.z, this.w];
+    }
 };
 
 export class ColorPalette {

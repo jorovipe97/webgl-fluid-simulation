@@ -27,11 +27,13 @@ uniform vec2 viewportSize;
 // will be encoded in the b component therefore ignoring
 // a component.
 uniform sampler2D metaballsPositions;
-// TODO: Pass width and height before shader compilation
+
+
 const int width = ${width};
 const int height = ${height};
 // const float r = ${radius.toFixed(1)}; // particle radius
-const float r = ${radius}; // particle radius
+// uniform float r = ${radius}; // particle radius
+uniform float r; // particle radius
 const int particlesCount = ${particlesCount};
 
 struct ColorPalette {
@@ -45,8 +47,8 @@ uniform ColorPalette palette;
 void main() {
     vec2 uv = gl_FragCoord.xy / viewportSize.xy;
 
-    vec4 sky1 = vec4(0.1529, 0.2352, 0.4588, 1.);
-    vec4 sky2 = vec4(0.0980, 0.1647, 0.3372, 1.);
+    vec4 sky1 = palette.sky1;
+    vec4 sky2 = palette.sky2;
     vec4 baseColor = mix(sky1, sky2, uv.x);
 
     float rr = r * viewportSize.x;
@@ -86,7 +88,7 @@ void main() {
     }
 
     if (v > 1.0) {
-        baseColor = vec4(0.000, 0.749, 1.000, 1.0);
+        baseColor = palette.dropColor;
     }
 
     gl_FragColor = baseColor;

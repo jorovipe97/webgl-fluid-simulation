@@ -79,7 +79,7 @@ a.menu-button:active {
 
 .show-menu .menu-wrap {
   width: 280px;
-  height: 500px;
+  height: 560px;
   -webkit-animation: jelly-anim 0.8s linear forwards;
   animation: jelly-anim 0.8s linear forwards;
 }

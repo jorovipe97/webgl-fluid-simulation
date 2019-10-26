@@ -3,6 +3,8 @@ import { metaballShader, generateMetaballsShader } from '../shaders/fragments';
 import { defaultVertextShader } from '../shaders/vertex';
 import { MetaballsShaderInfo, SystemState, SystemParameters } from '../types';
 import { getParameters, initParticles, computeAcceleration, leapfrogStart, leapfrogStep, getTextureData, printCurrentState, reflectHorizontalLineObstacle } from './index';
+import { ColorPalette } from '../types';
+import { palettes } from './parameters';
 
 /**
  * This is the entry point of any game logic
@@ -106,16 +108,16 @@ export class MainGame extends App {
         this.GL.bindTexture(this.GL.TEXTURE_2D, this.metaballsTexture);
         this.GL.uniform1i(this.GL.getUniformLocation(this.metaballsProgram, 'metaballsPositions'), 1);
 
+        // By default sets the first element on the palettes array
+        this.setupColorPalette();
+        this.setupVisualizationRadius();
         // draw triangles specified in setup() method
         this.updateDraw();
     }
 
     loop() {
-<<<<<<< HEAD:src/main.ts
-=======
         // console.log(this.FPS);
         // console.log(this.mousePosition);
->>>>>>> 5f1b050307694534b5ab96305647a02b620b9c10:src/sph/main.ts
         computeAcceleration(this.sphState, this.sphParameters);
         leapfrogStep(this.sphState, this.sphParameters.dt);
         // Move horizontal line by using mouse
@@ -159,5 +161,24 @@ export class MainGame extends App {
 
         if (this.metaballsProgram)
             this.updateDraw();
+    }
+
+    /**
+     * This method is called from ui/index
+     * @param palette The new color palete to use
+     */
+    setupColorPalette (palette:ColorPalette = palettes[0]) {
+        const sky1Handler = this.getUniformLocation(this.metaballsProgram, 'palette.sky1');
+        const sky2Handler = this.getUniformLocation(this.metaballsProgram, 'palette.sky2');
+        const dropColorHandler = this.getUniformLocation(this.metaballsProgram, 'palette.dropColor');
+
+        this.GL.uniform4fv(sky1Handler, palette.sky1.toArray());
+        this.GL.uniform4fv(sky2Handler, palette.sky2.toArray());
+        this.GL.uniform4fv(dropColorHandler, palette.dropColor.toArray());
+    }
+
+    setupVisualizationRadius(value:number = this.sphParameters.metaballRadius) {
+        const radiusHandler = this.getUniformLocation(this.metaballsProgram, 'r');
+        this.GL.uniform1f(radiusHandler, value);
     }
 }

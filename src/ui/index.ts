@@ -1,5 +1,6 @@
 import { ColorPalette, vec4 } from '../types';
 import { MainGame } from '../sph/main';
+import { palettes } from '../sph/parameters';
 const classie = require('./classie');
 
 let body:HTMLElement;
@@ -8,26 +9,9 @@ let container:HTMLElement;
 let canvas:HTMLElement;
 let colorPairs:Array<HTMLElement>;
 let particlesCountInfo:HTMLElement;
+let particleRadiusInput:HTMLInputElement;
 let fpsInfo:HTMLElement;
 let mainGame:MainGame;
-
-const palettes:Array<ColorPalette> = [
-    new ColorPalette(
-        new vec4(0.1529, 0.2352, 0.4588, 1.),
-        new vec4(0.0980, 0.1647, 0.3372, 1.),
-        new vec4(0.000, 0.749, 1.000, 1.0)
-    ),
-    new ColorPalette(
-        new vec4(1, 0, 0, 1.),
-        new vec4(0.9, 0, 0, 1.),
-        new vec4(0, 1, 0, 1.0)
-    ),
-    new ColorPalette(
-        new vec4(0, 0, 1, 1.),
-        new vec4(0, 0, 0.9, 1.),
-        new vec4(1, 0, 0, 1.0)
-    )
-]
 
 const state = {
     /**
@@ -52,6 +36,7 @@ export function initUI (simulation:MainGame) {
     canvas = document.getElementById('mainCanvas');
     particlesCountInfo = document.getElementById('particles-count-info');
     fpsInfo = document.getElementById('fps-info');
+    particleRadiusInput = <HTMLInputElement> document.getElementById('particle-radius-visualization-setup');
 
     // TODO: Update this when particles radius computing or max particles gets changed
     particlesCountInfo.innerHTML = ''+mainGame.sphState.n;
@@ -70,15 +55,16 @@ export function loopUI () {
 }
 
 function updateColorPalette () {
-    // TODO: Access the main game and set the pallete color uniform of the shader
+    mainGame.setupColorPalette(state.currentPalette);
 }
 
 function updateParticleRadiusComputing () {
-
+    
 }
 
 function updateParticleRadiusVisualization () {
-
+    const value:number = +particleRadiusInput.value;
+    mainGame.setupVisualizationRadius(value);
 }
 
 function initEvents () {
@@ -93,8 +79,10 @@ function initEvents () {
     });
 
     colorPairs.forEach((element) => {
-        element.addEventListener('click', selectColorPalette);
+        element.addEventListener('click', selectColorPalette, false);
     })
+
+    particleRadiusInput.addEventListener('input', updateParticleRadiusVisualization);
 }
 
 function selectColorPalette(event:MouseEvent) {
@@ -106,6 +94,7 @@ function selectColorPalette(event:MouseEvent) {
     classie.add( colorPairs[state.colorPaletteIndex], 'color-pair-selected' );
     state.prevColorPaletteIndex = state.colorPaletteIndex;
     state.currentPalette = palettes[state.colorPaletteIndex];
+    updateColorPalette();
 }
 
 function toggleMenu() {

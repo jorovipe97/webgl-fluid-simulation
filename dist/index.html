@@ -22,7 +22,7 @@
                                     <div class="color-pair-shape color-pair-check">
                                         <i class="fas fa-check-circle"></i>
                                     </div>
-                                    <div class="color-pair-shape color-pair-overlay" data-position="0"></div>
+                                    <div id="color-option-1-overlay" class="color-pair-shape color-pair-overlay" data-position="0"></div>
                                     <div class="color-pair-left" style="background-color: #1D2F5E;"></div><!--
                                     --><div class="color-pair-right" style="background-color: #00BFFF;"></div>
                                 </a>
@@ -30,7 +30,7 @@
                                     <div class="color-pair-shape color-pair-check">
                                         <i class="fas fa-check-circle"></i>
                                     </div>
-                                    <div class="color-pair-shape color-pair-overlay" data-position="1"></div>
+                                    <div id="color-option-2-overlay" class="color-pair-shape color-pair-overlay" data-position="1"></div>
                                     <div class="color-pair-left"></div><!--
                                     --><div class="color-pair-right"></div>
                                 </a>
@@ -38,23 +38,25 @@
                                     <div class="color-pair-shape color-pair-check">
                                         <i class="fas fa-check-circle"></i>
                                     </div>
-                                    <div class="color-pair-shape color-pair-overlay" data-position="2"></div>
+                                    <div id="color-option-3-overlay" class="color-pair-shape color-pair-overlay" data-position="2"></div>
                                     <div class="color-pair-left"></div><!--
                                     --><div class="color-pair-right"></div>
                                 </a>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="particle-radius-computing-setup">Particle radius (for computing)</label>
-                            <input id="particle-radius-computing-setup" type="number" class="form-control" value="0.07">
-                        </div>
-                        <div class="form-group">
                             <label for="particle-radius-visualization-setup">Particle radius (for visualization)</label>
                             <input id="particle-radius-visualization-setup" type="number" class="form-control" value="0.00625">
                         </div>
                         <div class="form-group">
+                            <label for="particle-radius-computing-setup">Particle radius (for computing)</label>
+                            <input id="particle-radius-computing-setup" type="number" class="form-control" value="0.07">
+                            <small class="form-text text-muted">Click on apply button to see changes.</small>
+                        </div>
+                        <div class="form-group">
                             <label for="max-particle-count-setup">Max particle count (-1 simulation decides)</label>
                             <input id="max-particle-count-setup" type="number" class="form-control" value="-1">
+                            <small class="form-text text-muted">Click on apply button to see changes.</small>
                         </div>
                         <div>(Info) Particles count: <span id="particles-count-info" class="info-label">999</span></div>
                         <div>(Info) FPS: <span id="fps-info" class="info-label">99</span></div>

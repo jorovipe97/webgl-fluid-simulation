@@ -1,8 +1,8 @@
-import { App } from './App';
-import { metaballShader, generateMetaballsShader } from './shaders/fragments';
-import { defaultVertextShader } from './shaders/vertex';
-import { MetaballsShaderInfo, SystemState, SystemParameters } from './types';
-import { getParameters, initParticles, computeAcceleration, leapfrogStart, leapfrogStep, getTextureData, printCurrentState, reflectHorizontalLineObstacle } from './sph/index';
+import { App } from '../App';
+import { metaballShader, generateMetaballsShader } from '../shaders/fragments';
+import { defaultVertextShader } from '../shaders/vertex';
+import { MetaballsShaderInfo, SystemState, SystemParameters } from '../types';
+import { getParameters, initParticles, computeAcceleration, leapfrogStart, leapfrogStep, getTextureData, printCurrentState, reflectHorizontalLineObstacle } from './index';
 
 /**
  * This is the entry point of any game logic
@@ -20,8 +20,8 @@ export class MainGame extends App {
     private metaballsVelocity:number[][] = [];
     private textureData:Float32Array;
 
-    private sphState:SystemState;
-    private sphParameters:SystemParameters;
+    public sphState:SystemState;
+    public sphParameters:SystemParameters;
 
     setup() {
         console.log('setup');
@@ -33,11 +33,9 @@ export class MainGame extends App {
 
         // https://stackoverflow.com/questions/9046643/webgl-create-texture
         // Pass metaballs positions to the shader by using a texture 2d
-        const particlesCount = this.sphState.n;
-        // this.metaballsPositions = new Float32Array(this.positions.flat());
         this.vertexShader = this.compileShader(defaultVertextShader, this.GL.VERTEX_SHADER);
         // each particle has 2 components
-        this.shaderInfo = generateMetaballsShader(particlesCount, this.sphState.pixelsCount);
+        this.shaderInfo = generateMetaballsShader(this.sphState, this.sphParameters);
         this.metaballsShader = this.compileShader(this.shaderInfo.shaderSource, this.GL.FRAGMENT_SHADER);
         this.metaballsProgram = this.GL.createProgram();
         this.GL.attachShader(this.metaballsProgram, this.vertexShader);
@@ -113,6 +111,11 @@ export class MainGame extends App {
     }
 
     loop() {
+<<<<<<< HEAD:src/main.ts
+=======
+        // console.log(this.FPS);
+        // console.log(this.mousePosition);
+>>>>>>> 5f1b050307694534b5ab96305647a02b620b9c10:src/sph/main.ts
         computeAcceleration(this.sphState, this.sphParameters);
         leapfrogStep(this.sphState, this.sphParameters.dt);
         // Move horizontal line by using mouse
@@ -124,7 +127,7 @@ export class MainGame extends App {
             reflectHorizontalLineObstacle(this.sphState);
         }
         getTextureData(this.textureData, this.sphState, this.sphParameters);
-        console.log(this.FPS);
+        // console.log(this.FPS);
         // Passing metaballs positions to texture unit 1 instead of the default 0 just for fun
         // unit texture and texture were binded in the setup
         this.GL.activeTexture(this.GL.TEXTURE1);

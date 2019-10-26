@@ -1,3 +1,19 @@
+export class vec4 {
+    constructor (public x:number = 0, public y:number = 0, public z:number = 0, public w:number = 0) {
+    }
+};
+
+export class ColorPalette {
+
+    /**
+     * 
+     * @param sky1 Background's horizontal linear gradient start color
+     * @param sky2 Background's horizontal linear gradient end color
+     * @param dropColor Color of the water drop
+     */
+    constructor(public sky1:vec4, public sky2:vec4, public dropColor:vec4){}
+};
+
 export interface MetaballsShaderInfo {
     shaderSource:string,
     textureDimensions:Dimension
@@ -14,17 +30,13 @@ export interface Dimension {
  */
 export interface SystemParameters {
     /**
-     * steps per frame
-     */
-    npframe:number,
-    /**
-     * Particle size
+     * Particle radius for using on the simulation computations
      */
     h:number,
     /**
-     * The particle width on visualization space
+     * The particle radius on viewport space for using on visualization
      */
-    metaballWidth:number,
+    metaballRadius:number,
     /**
      * Time step
      */

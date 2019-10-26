@@ -189,11 +189,12 @@ export function reflectBoundaryConditions(state:SystemState) {
 
 export function reflectHorizontalLineObstacle(state:SystemState, ptx:number = 0.25, pty:number = 0.45, width:number = 0.15) {
     const { x, n } = state;
+    const half = 0.5;
     for (let i = 0; i < n; ++i) {
         const idx = i * 2;
-        const isXOverHorizontalLine = x[idx + 0] > ptx && x[idx + 0] < (ptx + width);
-        const isYTouchingLine = x[idx + 1] < pty;
-        if (isXOverHorizontalLine && isYTouchingLine) {
+        const isXOverHorizontalLine = x[idx + 0] > (ptx - width * half) && x[idx + 0] < (ptx + width * half);
+        const isYUnderTheLine = x[idx + 1] < pty;
+        if (isXOverHorizontalLine && isYUnderTheLine) {
             dampReflect(1, pty, state, idx);
         }
     }
@@ -303,10 +304,16 @@ export function getTextureData(textureData:Float32Array, state:SystemState, para
     if (textureData.length !== (pixelsCount * 4)) throw 'Texture data array must be an array of 4 times the number of pixelsCount on the system state instance';
 
     for (let i = 0; i < n; i++) {
-        textureData[4*i + 0] = state.x[2*i + 0];
-        textureData[4*i + 1] = state.x[2*i + 1];
-        textureData[4*i + 2] = parameters.metaballWidth;
-        textureData[4*i + 3] = 0;
+        textureData[4*i + 0] = state.x[2*i + 0]; // x, position
+        textureData[4*i + 1] = state.x[2*i + 1]; // y, position
+        // velocity half step back
+        // TODO: Check it out this
+        // velocity direction
+        // const vx = state.v[2*i + 0]; // x, velocity
+        // const vy = state.v[2*i + 1]; // y, velocity
+        // const vMag = Math.sqrt(vx*vx + vy*vy);
+        textureData[4*i + 2] = state.v[2*i + 0]; // x, velocity
+        textureData[4*i + 3] = state.v[2*i + 1]; // y, velocity
     }
 }
 

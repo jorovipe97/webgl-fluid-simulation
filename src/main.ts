@@ -113,7 +113,6 @@ export class MainGame extends App {
     }
 
     loop() {
-        console.log(this.mousePosition);
         computeAcceleration(this.sphState, this.sphParameters);
         leapfrogStep(this.sphState, this.sphParameters.dt);
         // Move horizontal line by using mouse

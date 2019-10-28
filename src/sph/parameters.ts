@@ -4,7 +4,8 @@ import { SystemParameters } from '../types';
 export const defaultParameters:SystemParameters = {
     dt: 1e-2,
     // h: 3.2e-2,
-    h: 7e-2,
+    h: 2e-1,
+    // h: 7e-1,
     // metaballRadius: 8,
     metaballRadius: 0.00625, // 8/1280
     rho0: 1000, // originally 1000 (water density is 1000)

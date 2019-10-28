@@ -29,7 +29,10 @@ function init() {
     const simulation = new MainGame(gl, canvas);
     game = simulation;
     const ratio = window.innerWidth / window.innerHeight;
-    canvas.width = 1920;
+    // TODO: Add conditional initial width based on device
+    // 1920 for desktops and smaller resolutions for others devices
+    // canvas.width = 1920;
+    canvas.width = 240;
     canvas.height = canvas.width / ratio;
 
     canvas.addEventListener('mousemove', onMouseMove);

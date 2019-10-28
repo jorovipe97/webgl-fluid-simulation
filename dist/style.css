@@ -62,6 +62,7 @@ a.menu-button:active {
 .menu {
   height: 100%;
   opacity: 0;
+  overflow: auto;
 }
 
 .show-menu .menu {
@@ -79,7 +80,8 @@ a.menu-button:active {
 
 .show-menu .menu-wrap {
   width: 280px;
-  height: 500px;
+  height: 90%;
+  max-height: 525px;
   -webkit-animation: jelly-anim 0.8s linear forwards;
   animation: jelly-anim 0.8s linear forwards;
 }
@@ -95,10 +97,12 @@ a.menu-button:active {
 }
 
 .menu-bottom {
-  padding: 1em;
-  position: absolute;
+  text-align: right;
+  padding-right: 1em;
+  /* padding: 1em; */
+  /* position: absolute;
   right: 0;
-  bottom: 0;
+  bottom: 0; */
 }
 
 /* Color pickers */

@@ -2,6 +2,7 @@ import { MainGame } from './sph/main';
 import { App } from './App';
 import { Position } from './types';
 import { initUI, loopUI } from './ui/index';
+import { isMobile } from './utils';
 
 let canvas:HTMLCanvasElement;
 let gl:WebGLRenderingContext;
@@ -9,6 +10,8 @@ let game:App;
 let elapsedTime:number = 0;
 let previousTime:number = 0;
 let deltaTime:number = 0;
+
+
 
 // #region engine logic
 function init() {
@@ -18,9 +21,11 @@ function init() {
         gl = canvas.getContext('webgl');
     } catch( error ) { 
         console.error(error);
+        return;
     }
 
     if ( !gl ) {
+        alert('It seems like your browser does not supports webgl');
         throw "Cannot create webgl context";
     }
 
@@ -29,9 +34,17 @@ function init() {
     const simulation = new MainGame(gl, canvas);
     game = simulation;
     const ratio = window.innerWidth / window.innerHeight;
-    canvas.width = 1920;
+    // Add conditional initial width based on device
+    // 1920 for desktops and smaller resolutions for others devices
+    // TODO: Check why the simulation does not run on android emulator and some android devices
+    // TODO: Use isMobile() function to change simulation parameters
+    if (isMobile()) 
+        canvas.width = 640;
+    else
+        canvas.width = 1920;
     canvas.height = canvas.width / ratio;
 
+    // TODO: Create a method to change simulation parameters
     canvas.addEventListener('mousemove', onMouseMove);
     onResize();
     game.setup();

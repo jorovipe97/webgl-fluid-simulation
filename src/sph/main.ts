@@ -1,8 +1,8 @@
 import { App } from '../App';
-import { metaballShader, generateMetaballsShader } from '../shaders/fragments';
+import { metaballShader, generateMetaballsShaderSource } from '../shaders/fragments';
 import { defaultVertextShader } from '../shaders/vertex';
 import { MetaballsShaderInfo, SystemState, SystemParameters } from '../types';
-import { getParameters, initParticles, computeAcceleration, leapfrogStart, leapfrogStep, getTextureData, printCurrentState, reflectHorizontalLineObstacle } from './index';
+import { getParameters, initParticles, computeAcceleration, leapfrogStart, leapfrogStep, getTextureData, printCurrentState, reflectHorizontalLineObstacle, freeState, freeParameters } from './index';
 import { ColorPalette } from '../types';
 import { palettes } from './parameters';
 
@@ -18,16 +18,21 @@ export class MainGame extends App {
     private viewporSize:Float32Array;
     private metaballsPositions:Float32Array;
     private metaballsTexture:WebGLTexture;
+    private vertexBuffer:WebGLBuffer;
     private shaderInfo:MetaballsShaderInfo;
     private metaballsVelocity:number[][] = [];
     private textureData:Float32Array;
 
     public sphState:SystemState;
     public sphParameters:SystemParameters;
+    public isSettingUp:boolean = true;
 
     setup() {
         console.log('setup');
-        this.sphParameters = getParameters();
+        // If sphParameters is undefined
+        if (!this.sphParameters)
+            this.sphParameters = getParameters();
+
         if (!this.sphParameters) throw 'SPH parameters can\'t be null';
         this.sphState = initParticles(this.sphParameters);
         computeAcceleration(this.sphState, this.sphParameters);
@@ -37,7 +42,7 @@ export class MainGame extends App {
         // Pass metaballs positions to the shader by using a texture 2d
         this.vertexShader = this.compileShader(defaultVertextShader, this.GL.VERTEX_SHADER);
         // each particle has 2 components
-        this.shaderInfo = generateMetaballsShader(this.sphState, this.sphParameters);
+        this.shaderInfo = generateMetaballsShaderSource(this.sphState, this.sphParameters);
         this.metaballsShader = this.compileShader(this.shaderInfo.shaderSource, this.GL.FRAGMENT_SHADER);
         this.metaballsProgram = this.GL.createProgram();
         this.GL.attachShader(this.metaballsProgram, this.vertexShader);
@@ -61,20 +66,22 @@ export class MainGame extends App {
             1.0, 1.0,
             1.0, -1.0
         ]);
-        const vertexDataBuffer = this.GL.createBuffer();
-        this.GL.bindBuffer(this.GL.ARRAY_BUFFER, vertexDataBuffer);
+        this.vertexBuffer = this.GL.createBuffer();
+        this.GL.bindBuffer(this.GL.ARRAY_BUFFER, this.vertexBuffer);
         this.GL.bufferData(this.GL.ARRAY_BUFFER, vertexData, this.GL.STATIC_DRAW);
 
         // To make the geometry information available in the shader as attributes, we
         // need to tell WebGL what the layout of our data in the vertex buffer is.
-        const positionHandle = this.getAttribLocation(this.metaballsProgram, 'position');
-        this.GL.enableVertexAttribArray(positionHandle);
+        // const positionHandle = this.getAttribLocation(this.metaballsProgram, 'position');
+        // TODO(DONE): Always have vertex attrib 0 array enabled to prevent the browser to do complicated emulation when running on desktop OpenGL (e.g. on Mac OSX). This is because in desktop OpenGL, nothing gets drawn if vertex attrib 0 is not array-enabled.
+        this.GL.bindAttribLocation(this.metaballsProgram, 0, 'position');
+        this.GL.enableVertexAttribArray(0);
         // in c++ this would be done by using typeof(float)
         // size in bytes per component
         const bytesPerComponent = 4; // a float 32 bits number needs 4 bytes
         const componentCount = 2; // how much components will have
         const byteSize = componentCount * bytesPerComponent;
-        this.GL.vertexAttribPointer(positionHandle,
+        this.GL.vertexAttribPointer(0,
             componentCount, // position is a vec2
             this.GL.FLOAT, // each component is a float
             false, // don't normalize values
@@ -104,6 +111,8 @@ export class MainGame extends App {
         this.GL.bindTexture(this.GL.TEXTURE_2D, null);
 
         // Passing metaballs positions to texture unit 1 instead of the default 0 just for fun
+        // For more details on texture units and texture targets see:
+        // https://webgl2fundamentals.org/webgl/lessons/webgl-texture-units.html
         this.GL.activeTexture(this.GL.TEXTURE1);
         this.GL.bindTexture(this.GL.TEXTURE_2D, this.metaballsTexture);
         this.GL.uniform1i(this.GL.getUniformLocation(this.metaballsProgram, 'metaballsPositions'), 1);
@@ -112,10 +121,14 @@ export class MainGame extends App {
         this.setupColorPalette();
         this.setupVisualizationRadius();
         // draw triangles specified in setup() method
-        this.updateDraw();
+        this.clear();
+        // this.drawMesh();
+        this.isSettingUp = false;
     }
 
     loop() {
+        if (this.isSettingUp) return;
+        this.clear();
         // console.log(this.FPS);
         // console.log(this.mousePosition);
         computeAcceleration(this.sphState, this.sphParameters);
@@ -130,14 +143,10 @@ export class MainGame extends App {
         }
         getTextureData(this.textureData, this.sphState, this.sphParameters);
         // console.log(this.FPS);
-        // Passing metaballs positions to texture unit 1 instead of the default 0 just for fun
         // unit texture and texture were binded in the setup
-        this.GL.activeTexture(this.GL.TEXTURE1);
-        this.GL.bindTexture(this.GL.TEXTURE_2D, this.metaballsTexture);
-        this.GL.uniform1i(this.GL.getUniformLocation(this.metaballsProgram, 'metaballsPositions'), 1);
         const level = 0;
         this.GL.texImage2D(this.GL.TEXTURE_2D, level, this.GL.RGBA, this.shaderInfo.textureDimensions.width, this.shaderInfo.textureDimensions.height, 0, this.GL.RGBA, this.GL.FLOAT, this.textureData);
-        this.updateDraw();
+        this.drawMesh();
     }
 
     // onResize gets called before and after setup
@@ -159,9 +168,46 @@ export class MainGame extends App {
             // otherwise uniforms wont be updated in the shader program
         }
 
-        if (this.metaballsProgram)
-            this.updateDraw();
+        if (this.metaballsProgram) {
+            this.clear();
+            this.drawMesh();
+        }
     }
+
+    unload () {
+        // if already created release sphState arrays and other resources
+        if (this.sphState) {
+            freeState(this.sphState);
+            this.sphState = null;
+        }
+        if (this.sphParameters) {
+            freeParameters(this.sphParameters);
+            this.sphParameters = null;
+        }
+        // detach currently attached shaders
+        // TODO: Check if this shader is attached to current program
+        this.GL.detachShader(this.metaballsProgram, this.metaballsShader);
+        this.GL.detachShader(this.metaballsProgram, this.vertexShader);
+        var numTextureUnits = this.GL.getParameter(this.GL.MAX_TEXTURE_IMAGE_UNITS);
+        for (var unit = 0; unit < numTextureUnits; ++unit) {
+            this.GL.activeTexture(this.GL.TEXTURE0 + unit);
+            this.GL.bindTexture(this.GL.TEXTURE_2D, null);
+        }
+        this.GL.bindBuffer(this.GL.ARRAY_BUFFER, null);
+        this.GL.deleteTexture(this.metaballsTexture);
+        this.GL.deleteBuffer(this.vertexBuffer);
+    }
+
+    changeSimulationParameters (parameters: SystemParameters) {
+        this.isSettingUp = true;
+        this.unload();
+        this.sphParameters = parameters;
+        this.setup();
+        this.onResize();
+        this.isSettingUp = false;
+    }
+
+
 
     /**
      * This method is called from ui/index

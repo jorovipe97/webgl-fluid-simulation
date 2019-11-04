@@ -3,7 +3,8 @@ import { defaultParameters } from './parameters';
 import { boxIndicatorFactory, circleIndicatorFactory } from './indicatorsFunctions';
 
 export function getParameters():SystemParameters {
-    return defaultParameters;
+    // clones this object to ensure defaultParameters object is never destroyed
+    return Object.assign({}, defaultParameters);
 }
 
 function initializeArray(elementsCount:number, defaultValue:number = 0):number[] {
@@ -27,14 +28,25 @@ export function allocState(n:number, pixelsCount:number):SystemState {
     };
 }
 
+// TODO: What about using Object.keys() to remove automatically all the properties of state object
 export function freeState(state:SystemState) {
-    delete state['n'];
-    delete state['mass'];
-    delete state['rho'];
-    delete state['x'];
-    delete state['vh'];
-    delete state['v'];
-    delete state['a'];
+    for (const key in state) {
+        delete state[key];
+    }
+
+    // delete state['n'];
+    // delete state['pixelsCount'];
+    // delete state['mass'];
+    // delete state['rho'];
+    // delete state['x'];
+    // delete state['vh'];
+    // delete state['v'];
+    // delete state['a'];
+}
+export function freeParameters(parameters: SystemParameters) {
+    for (const key in parameters) {
+        delete parameters[key];
+    }
 }
 
 export function computeDensity(state:SystemState, parameters:SystemParameters) {
@@ -227,15 +239,20 @@ export function dampReflect(which:number, barrier:number, state:SystemState, idx
 }
 
 function placeParticles(parameters:SystemParameters, indicatorFunction:IndicatorFunction):SystemState {
-    const h = parameters.h;
+    const { h, maxParticleCount:maxCount } = parameters;
+
     // separation between particles will be of 0.3
     const hh = h / 1.3;
 
     // Count mesh points that fall in indicated region.
     let count:number = 0;
-    for (let x = 0; x < 1; x += hh)
-        for (let y = 0; y < 1; y += hh)
-            count += indicatorFunction(x,y) ? 1 : 0;
+    if (maxCount < 0) {
+        for (let x = 0; x < 1; x += hh)
+            for (let y = 0; y < 1; y += hh)
+                count += indicatorFunction(x,y) ? 1 : 0;
+    } else {
+        count = maxCount;
+    }
 
     // the number of particles must be a power of two
     // to render it on the gpu

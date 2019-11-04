@@ -65,9 +65,13 @@ export class App
         return uniformLocation;
     }
 
-    updateDraw():void {
+    clear():void {
         this.GL.clearColor(0.0, 0.0, 0.0, 1.0);
         this.GL.clear(this.GL.COLOR_BUFFER_BIT);
+        // this.GL.drawArrays(this.GL.TRIANGLE_STRIP, 0, 4);
+    }
+
+    drawMesh():void {
         this.GL.drawArrays(this.GL.TRIANGLE_STRIP, 0, 4);
     }
 

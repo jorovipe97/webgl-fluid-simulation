@@ -33,10 +33,13 @@ function init() {
     // to ensure not to interact with high level components of the program
     const simulation = new MainGame(gl, canvas);
     game = simulation;
+    // TODO: This is a bad practice, see here how to create a full screeen canvas https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
+    // https://webglfundamentals.org/webgl/webgl-same-code-canvas-fullscreen.html
     const ratio = window.innerWidth / window.innerHeight;
     // Add conditional initial width based on device
     // 1920 for desktops and smaller resolutions for others devices
     // TODO: Check why the simulation does not run on android emulator and some android devices
+    // maybe, it's due to highp ussage? https://developer.mozilla.org/es/docs/Web/API/WebGL_API/WebGL_best_practices
     // TODO: Use isMobile() function to change simulation parameters
     if (isMobile()) 
         canvas.width = 640;

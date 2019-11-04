@@ -1,8 +1,8 @@
 export class vec4 {
-    constructor (public x:number = 0, public y:number = 0, public z:number = 0, public w:number = 0) {
+    constructor(public x: number = 0, public y: number = 0, public z: number = 0, public w: number = 0) {
     }
 
-    toArray ():number[] {
+    toArray(): number[] {
         return [this.x, this.y, this.z, this.w];
     }
 };
@@ -15,17 +15,17 @@ export class ColorPalette {
      * @param sky2 Background's horizontal linear gradient end color
      * @param dropColor Color of the water drop
      */
-    constructor(public sky1:vec4, public sky2:vec4, public dropColor:vec4){}
+    constructor(public sky1: vec4, public sky2: vec4, public dropColor: vec4) { }
 };
 
 export interface MetaballsShaderInfo {
-    shaderSource:string,
-    textureDimensions:Dimension
+    shaderSource: string,
+    textureDimensions: Dimension
 };
 
 export interface Dimension {
-    width:number,
-    height:number
+    width: number,
+    height: number
 };
 
 /**
@@ -33,42 +33,44 @@ export interface Dimension {
  * These parameters are filled in by the getParams function
  */
 export interface SystemParameters {
+    [index:string]: any,
     /**
      * Particle radius for using on the simulation computations
      */
-    h:number,
+    h: number,
     /**
      * The particle radius on viewport space for using on visualization
      */
-    metaballRadius:number,
+    metaballRadius: number,
     /**
      * Time step
      */
-    dt:number,
+    dt: number,
     /**
      * Reference density
      */
-    rho0:number,
+    rho0: number,
     /**
      * Bulk modulus
      */
-    k:number,
+    k: number,
     /**
      * Viscosity
      */
-    mu:number,
+    mu: number,
     /**
      * Gravity strength
      */
-    g:number,
+    g: number,
     /**
      * The minimum random x acceleration for each particle
      */
-    minXAcceleration:number,
+    minXAcceleration: number,
     /**
      * The maximum random x acceleration for each particle
      */
-    maxXAcceleration:number
+    maxXAcceleration: number,
+    maxParticleCount: number,
 }
 
 /**
@@ -80,38 +82,42 @@ export interface SystemParameters {
  */
 export interface SystemState {
     /**
+     * Index signature to allow instances of this interface to be accesed by using obj[key] signature
+     */
+    [index: string]: any,
+    /**
      *  Number of particles
-    */
-    n:number,
+     */
+    n: number,
     /**
      * Number of pixels required to save all the particles information
      * into a power of 2 texture
      */
-    pixelsCount:number,
+    pixelsCount: number,
     /**
      * Particle mass
      */
-    mass:number,
+    mass: number,
     /**
      * Densities
      */
-    rho:number[],
+    rho: number[],
     /**
      * Positions
      */
-    x:number[],
+    x: number[],
     /**
      * Velocities (half step)
      */
-    vh:number[],
+    vh: number[],
     /**
      * Velocities (full step)
      */
-    v:number[],
+    v: number[],
     /**
      * Acceleration
      */
-    a:number[]
+    a: number[]
 }
 
 /**
@@ -119,10 +125,10 @@ export interface SystemState {
  * that is one for points in the domain occupied by fluid and zero elsewhere
  */
 export interface IndicatorFunction {
-    (x:number, y:number): boolean;
+    (x: number, y: number): boolean;
 }
 
 export interface Position {
-    x:number,
-    y:number
+    x: number,
+    y: number
 };

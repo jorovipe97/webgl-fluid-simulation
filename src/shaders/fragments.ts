@@ -3,7 +3,7 @@ import { MetaballsShaderInfo, SystemState, SystemParameters } from '../types';
 // TODO: Pass color presets
 // TODO: Support change of number of particles from the gui
 
-export function generateMetaballsShader(state:SystemState, params:SystemParameters):MetaballsShaderInfo {
+export function generateMetaballsShaderSource(state:SystemState, params:SystemParameters):MetaballsShaderInfo {
     const { pixelsCount, n: particlesCount} = state;
     const radius = params.metaballRadius;
     // checks if metaballs count is a power of 2

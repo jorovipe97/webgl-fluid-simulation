@@ -46,6 +46,7 @@ export function initUI (simulation:MainGame) {
     applyButton = document.getElementById('apply-button');
 
     const parameters:SystemParameters = getParameters();
+    particleRadiusInput.value = parameters.metaballRadius+'';
     particleRadiusComputingInput.value = parameters.h+'';
     maxParticleCountInput.value = parameters.maxParticleCount+'';
 
@@ -115,7 +116,7 @@ function onApply () {
         maxParticleCount: +maxParticleCountInput.value
     });
     mainGame.changeSimulationParameters(newParameters);
-    console.log('button clicked');
+    particlesCountInfo.innerHTML = ''+mainGame.sphState.n;
 }
 
 function toggleMenu () {

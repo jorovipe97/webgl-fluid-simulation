@@ -27,11 +27,18 @@ export class MainGame extends App {
     public sphParameters:SystemParameters;
     public isSettingUp:boolean = true;
 
+    private colorPalette:ColorPalette;
+    private visualizationRadius:number;
+
     setup() {
         console.log('setup');
         // If sphParameters is undefined
-        if (!this.sphParameters)
+        // is undefined only the first time
+        if (!this.sphParameters) {
             this.sphParameters = getParameters();
+            this.colorPalette = palettes[0];
+            this.visualizationRadius = this.sphParameters.metaballRadius;
+        }
 
         if (!this.sphParameters) throw 'SPH parameters can\'t be null';
         this.sphState = initParticles(this.sphParameters);
@@ -118,8 +125,8 @@ export class MainGame extends App {
         this.GL.uniform1i(this.GL.getUniformLocation(this.metaballsProgram, 'metaballsPositions'), 1);
 
         // By default sets the first element on the palettes array
-        this.setupColorPalette();
-        this.setupVisualizationRadius();
+        this.setupColorPalette(this.colorPalette);
+        this.setupVisualizationRadius(this.visualizationRadius);
         // draw triangles specified in setup() method
         this.clear();
         // this.drawMesh();
@@ -213,7 +220,7 @@ export class MainGame extends App {
      * This method is called from ui/index
      * @param palette The new color palete to use
      */
-    setupColorPalette (palette:ColorPalette = palettes[0]) {
+    setupColorPalette (palette:ColorPalette) {
         const sky1Handler = this.getUniformLocation(this.metaballsProgram, 'palette.sky1');
         const sky2Handler = this.getUniformLocation(this.metaballsProgram, 'palette.sky2');
         const dropColorHandler = this.getUniformLocation(this.metaballsProgram, 'palette.dropColor');
@@ -221,10 +228,14 @@ export class MainGame extends App {
         this.GL.uniform4fv(sky1Handler, palette.sky1.toArray());
         this.GL.uniform4fv(sky2Handler, palette.sky2.toArray());
         this.GL.uniform4fv(dropColorHandler, palette.dropColor.toArray());
+
+        this.colorPalette = palette;
     }
 
-    setupVisualizationRadius(value:number = this.sphParameters.metaballRadius) {
+    setupVisualizationRadius(value:number) {
         const radiusHandler = this.getUniformLocation(this.metaballsProgram, 'r');
         this.GL.uniform1f(radiusHandler, value);
+
+        this.visualizationRadius = value;
     }
 }

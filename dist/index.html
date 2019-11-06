@@ -47,16 +47,16 @@
                         </div>
                         <div class="form-group">
                             <label for="particle-radius-visualization-setup">Particle radius (for visualization)</label>
-                            <input id="particle-radius-visualization-setup" type="number" class="form-control" value="0.00625">
+                            <input id="particle-radius-visualization-setup" type="number" class="form-control" min="0" step="0.001" value="0.06">
                         </div>
                         <div class="form-group">
                             <label for="particle-radius-computing-setup">Particle radius (for computing)</label>
-                            <input id="particle-radius-computing-setup" type="number" class="form-control" value="0.07">
+                            <input id="particle-radius-computing-setup" type="number" class="form-control" min="0.01" step="0.01" value="0.2">
                             <small class="form-text text-muted">Click on apply button to see changes.</small>
                         </div>
                         <div class="form-group">
                             <label for="max-particle-count-setup">Max particle count (-1 simulation decides)</label>
-                            <input id="max-particle-count-setup" type="number" class="form-control" value="-1">
+                            <input id="max-particle-count-setup" type="number" class="form-control" min="-1" step="1" value="-1">
                             <small class="form-text text-muted">Click on apply button to see changes.</small>
                         </div>
                         <div>(Info) Particles count: <span id="particles-count-info" class="info-label">999</span></div>
@@ -80,7 +80,7 @@
                 we are creating an constant size image and scalling up by using css.
              -->
             <!-- <canvas id="mainCanvas"></canvas> -->
-            <canvas id="mainCanvas" style="width: 100%; height: 100%;"></canvas>
+            <canvas id="mainCanvas" style="width: 100vw; height: 100vh;"></canvas>
             <!-- <div style="display: flex; justify-content: stretch;">
             </div> -->
         </div>

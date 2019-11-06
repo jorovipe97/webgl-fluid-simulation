@@ -12,7 +12,7 @@ module.exports = {
 	devtool: 'inline-source-map', // not recommended for production code.
 	devServer: {
 		contentBase: './dist',
-		host: "192.168.1.5" , // Your Computer Name
+		host: "192.168.240.123" , // Your Computer Name
 		disableHostCheck: false
     	// port: 8080
 	},

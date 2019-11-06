@@ -79,11 +79,12 @@ function onResize() {
     // canvas.width = window.innerWidth;
     // canvas.height = window.innerHeight;
     // console.log('ratio:', window.innerWidth/window.innerHeight);
+    // fix the anti patterns
+    // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
+
     const x = 0;
     const y = 0;
-    game.viewporWidth = canvas.width;
-    game.viewporHeight = canvas.height;
-    gl.viewport(x, y, canvas.width, canvas.height);
+    gl.viewport(x, y, gl.drawingBufferWidth, gl.drawingBufferHeight);
     game.onResize();
 }
 function getMousePos(canvas:HTMLCanvasElement, evt:any):Position {
@@ -101,8 +102,8 @@ function onMouseMove(event:any) {
     const mousePosition = getMousePos(canvas, event);
     // Tranform mouse position from window coordinates to canvas coordinates
     const mousePositionCanvas = {
-        x: (mousePosition.x / window.innerWidth) * canvas.width,
-        y: (mousePosition.y / window.innerHeight) * canvas.height
+        x: (mousePosition.x / gl.drawingBufferWidth) * canvas.width,
+        y: (mousePosition.y / gl.drawingBufferHeight) * canvas.height
     }
     game.mousePosition = mousePositionCanvas;
 }

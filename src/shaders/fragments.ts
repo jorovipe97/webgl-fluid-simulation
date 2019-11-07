@@ -28,13 +28,13 @@ uniform vec2 viewportSize;
 // a component.
 uniform sampler2D metaballsPositions;
 
-
 const int width = ${width};
 const int height = ${height};
 // const float r = ${radius.toFixed(1)}; // particle radius
 // uniform float r = ${radius}; // particle radius
 uniform float r; // particle radius
 const int particlesCount = ${particlesCount};
+uniform float aspectRatio;
 
 struct ColorPalette {
     vec4 sky1;
@@ -51,7 +51,7 @@ void main() {
     vec4 sky2 = palette.sky2;
     vec4 baseColor = mix(sky1, sky2, uv.x);
 
-    float rr = r * viewportSize.x;
+    float rr = r * viewportSize.x + aspectRatio * 0.;
 
     // Iterate metaballs
     float v = 0.0;

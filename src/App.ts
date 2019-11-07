@@ -24,9 +24,11 @@ export class App
      * Elapsed time in milliseconds
      */
     elapsedTime:number;
-    constructor(glContext: WebGLRenderingContext, canvasElement:HTMLCanvasElement) {
+    public aspectRatio:number;
+    constructor(glContext: WebGLRenderingContext, canvasElement:HTMLCanvasElement, aspectRatio:number) {
         this.GL = glContext;
         this.canvas = canvasElement;
+        this.aspectRatio = aspectRatio;
     }
 
     /**

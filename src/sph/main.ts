@@ -173,6 +173,9 @@ export class MainGame extends App {
             // draw triangles specified in setup() method
             // glUniformXXX should be after glUseProgram and before drawing anything.
             // otherwise uniforms wont be updated in the shader program
+            const ratio = this.canvas.clientWidth / this.canvas.clientHeight;
+            console.log(ratio);
+            this.setupAspectRatio(ratio);
         }
 
         if (this.metaballsProgram) {
@@ -237,5 +240,12 @@ export class MainGame extends App {
         this.GL.uniform1f(radiusHandler, value);
 
         this.visualizationRadius = value;
+    }
+
+    setupAspectRatio(aspectRatio:number) {
+        // TODO: Cache uniform location
+        const ratioHandler = this.getUniformLocation(this.metaballsProgram, 'aspectRatio');
+        this.GL.uniform1f(ratioHandler, aspectRatio);
+        this.aspectRatio = aspectRatio;
     }
 }

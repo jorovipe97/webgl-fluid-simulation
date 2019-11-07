@@ -4,35 +4,31 @@ import { Position } from './types';
 import { initUI, loopUI } from './ui/index';
 import { isMobile } from './utils';
 
-let canvas:HTMLCanvasElement;
-let gl:WebGLRenderingContext;
-let game:App;
-let elapsedTime:number = 0;
-let previousTime:number = 0;
-let deltaTime:number = 0;
+let canvas: HTMLCanvasElement;
+let gl: WebGLRenderingContext;
+let game: App;
+let elapsedTime: number = 0;
+let previousTime: number = 0;
+let deltaTime: number = 0;
 
 
 
 // #region engine logic
 function init() {
-    canvas = <HTMLCanvasElement> document.getElementById('mainCanvas');
+    canvas = <HTMLCanvasElement>document.getElementById('mainCanvas');
     // Initialise WebGL 
-    try { 
+    try {
         gl = canvas.getContext('webgl');
-    } catch( error ) { 
+    } catch (error) {
         console.error(error);
         return;
     }
 
-    if ( !gl ) {
+    if (!gl) {
         alert('It seems like your browser does not supports webgl');
         throw "Cannot create webgl context";
     }
 
-    // MainGame inherits from App, using some polymorphism
-    // to ensure not to interact with high level components of the program
-    const simulation = new MainGame(gl, canvas);
-    game = simulation;
     // TODO: This is a bad practice, see here how to create a full screeen canvas https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
     // https://webglfundamentals.org/webgl/webgl-same-code-canvas-fullscreen.html
     const ratio = window.innerWidth / window.innerHeight;
@@ -41,11 +37,16 @@ function init() {
     // TODO: Check why the simulation does not run on android emulator and some android devices
     // maybe, it's due to highp ussage? https://developer.mozilla.org/es/docs/Web/API/WebGL_API/WebGL_best_practices
     // TODO: Use isMobile() function to change simulation parameters
-    if (isMobile()) 
+    if (isMobile())
         canvas.width = 640;
     else
         canvas.width = 1920;
     canvas.height = canvas.width / ratio;
+
+    // MainGame inherits from App, using some polymorphism
+    // to ensure not to interact with high level components of the program
+    const simulation = new MainGame(gl, canvas, ratio);
+    game = simulation;
 
     // TODO: Create a method to change simulation parameters
     canvas.addEventListener('mousemove', onMouseMove);
@@ -60,10 +61,10 @@ function init() {
 /**
  * The loop function
  */
-function render(now:number) {
+function render(now: number) {
     elapsedTime = now;
     deltaTime = elapsedTime - previousTime;
-    
+
     // See this to compute the delta time and the elapsed by using
     // the request animation frame https://stackoverflow.com/questions/25612452/html5-canvas-game-loop-delta-time-calculations
     game.FPS = 1000 / deltaTime;
@@ -76,28 +77,45 @@ function render(now:number) {
     requestAnimationFrame(render);
 }
 function onResize() {
-    // canvas.width = window.innerWidth;
-    // canvas.height = window.innerHeight;
-    // console.log('ratio:', window.innerWidth/window.innerHeight);
     // fix the anti patterns
     // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
-
     const x = 0;
     const y = 0;
+    // https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
+    // https://stackoverflow.com/questions/23950105/how-to-maintain-webgl-canvas-aspect-ratio
     gl.viewport(x, y, gl.drawingBufferWidth, gl.drawingBufferHeight);
     game.onResize();
 }
-function getMousePos(canvas:HTMLCanvasElement, evt:any):Position {
+
+/**
+   * Resize a canvas to match the size its displayed.
+   * @param {HTMLCanvasElement} canvas The canvas to resize.
+   * @param {number} [multiplier] amount to multiply by.
+   *    Pass in window.devicePixelRatio for native pixels.
+   * @return {boolean} true if the canvas was resized.
+   * @memberOf module:webgl-utils
+   */
+function resizeCanvasToDisplaySize(canvas:HTMLCanvasElement, multiplier:number=1) {
+    const width = canvas.clientWidth * multiplier | 0;
+    const height = canvas.clientHeight * multiplier | 0;
+    if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+        return true;
+    }
+    return false;
+}
+function getMousePos(canvas: HTMLCanvasElement, evt: any): Position {
     if (!evt) {
         console.log('getMousePos() didn\'t received an evt argument');
     }
     var rect = canvas.getBoundingClientRect();
     return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
     };
 }
-function onMouseMove(event:any) {
+function onMouseMove(event: any) {
     // mouse position on inner window screen coordinate system
     const mousePosition = getMousePos(canvas, event);
     // Tranform mouse position from window coordinates to canvas coordinates

@@ -29,6 +29,13 @@ export class MainGame extends App {
 
     private colorPalette:ColorPalette;
     private visualizationRadius:number;
+    private _mouseInteractionEnabled:boolean = true;
+    get mouseInteractionEnabled () {
+        return this._mouseInteractionEnabled;
+    }
+    set mouseInteractionEnabled (value:boolean) {
+        this._mouseInteractionEnabled = value;
+    }
 
     setup() {
         console.log('setup');
@@ -140,14 +147,15 @@ export class MainGame extends App {
         // console.log(this.mousePosition);
         computeAcceleration(this.sphState, this.sphParameters);
         leapfrogStep(this.sphState, this.sphParameters.dt);
-        // Move horizontal line by using mouse
-        if (this.mousePosition) {
-            const ptx = this.mousePosition.x / this.viewporWidth;
-            const pty = 1 - (this.mousePosition.y / this.viewporHeight);
-            reflectHorizontalLineObstacle(this.sphState, ptx, pty);
-        } else {
-            reflectHorizontalLineObstacle(this.sphState);
-        }
+        if (this.mouseInteractionEnabled)
+            // Move horizontal line by using mouse
+            if (this.mousePosition) {
+                const ptx = this.mousePosition.x / this.GL.drawingBufferWidth;
+                const pty = 1 - (this.mousePosition.y / this.GL.drawingBufferHeight);
+                reflectHorizontalLineObstacle(this.sphState, ptx, pty);
+            } else {
+                reflectHorizontalLineObstacle(this.sphState);
+            }
         getTextureData(this.textureData, this.sphState, this.sphParameters);
         // console.log(this.FPS);
         // unit texture and texture were binded in the setup
@@ -166,16 +174,13 @@ export class MainGame extends App {
         // it is possible that the program hasn't been created yet
         if (this.metaballsProgram)
         {
-            this.viewporSize[0] = this.canvas.width;
-            this.viewporSize[1] = this.canvas.height;
+            this.viewporSize[0] = this.GL.drawingBufferWidth;
+            this.viewporSize[1] = this.GL.drawingBufferHeight;
             const viewporSizeHandle = this.getUniformLocation(this.metaballsProgram, 'viewportSize', true);
             this.GL.uniform2fv(viewporSizeHandle, this.viewporSize);
             // draw triangles specified in setup() method
             // glUniformXXX should be after glUseProgram and before drawing anything.
             // otherwise uniforms wont be updated in the shader program
-            const ratio = this.canvas.clientWidth / this.canvas.clientHeight;
-            console.log(ratio);
-            this.setupAspectRatio(ratio);
         }
 
         if (this.metaballsProgram) {
@@ -185,6 +190,8 @@ export class MainGame extends App {
     }
 
     unload () {
+        // remove uniforms locations cache
+        super.unload();
         // if already created release sphState arrays and other resources
         if (this.sphState) {
             freeState(this.sphState);
@@ -206,6 +213,7 @@ export class MainGame extends App {
         this.GL.bindBuffer(this.GL.ARRAY_BUFFER, null);
         this.GL.deleteTexture(this.metaballsTexture);
         this.GL.deleteBuffer(this.vertexBuffer);
+        this.GL.deleteProgram(this.metaballsProgram);
     }
 
     changeSimulationParameters (parameters: SystemParameters) {
@@ -236,16 +244,10 @@ export class MainGame extends App {
     }
 
     setupVisualizationRadius(value:number) {
+        // TODO: Cache uniform location
         const radiusHandler = this.getUniformLocation(this.metaballsProgram, 'r');
         this.GL.uniform1f(radiusHandler, value);
 
         this.visualizationRadius = value;
-    }
-
-    setupAspectRatio(aspectRatio:number) {
-        // TODO: Cache uniform location
-        const ratioHandler = this.getUniformLocation(this.metaballsProgram, 'aspectRatio');
-        this.GL.uniform1f(ratioHandler, aspectRatio);
-        this.aspectRatio = aspectRatio;
     }
 }

@@ -10,6 +10,7 @@ let game: App;
 let elapsedTime: number = 0;
 let previousTime: number = 0;
 let deltaTime: number = 0;
+let maxWidth:number;
 
 
 
@@ -38,9 +39,12 @@ function init() {
     // maybe, it's due to highp ussage? https://developer.mozilla.org/es/docs/Web/API/WebGL_API/WebGL_best_practices
     // TODO: Use isMobile() function to change simulation parameters
     if (isMobile())
-        canvas.width = 640;
+        maxWidth = 640;
     else
-        canvas.width = 1920;
+        maxWidth = 1920;
+
+    // sets render bufer size
+    canvas.width = maxWidth;
     canvas.height = canvas.width / ratio;
 
     // MainGame inherits from App, using some polymorphism
@@ -50,9 +54,9 @@ function init() {
 
     // TODO: Create a method to change simulation parameters
     canvas.addEventListener('mousemove', onMouseMove);
-    onResize();
+    updateViewport();
     game.setup();
-    onResize();
+    updateViewport();
     render(0);
 
     // Initialize jquery, redux, etc logic
@@ -77,8 +81,19 @@ function render(now: number) {
     requestAnimationFrame(render);
 }
 function onResize() {
+    // Supported cases in which canvas should be okay
+    // 1. Navigator starts zoomed-out (e.g: 25%): Canvas width will be clamped at 1920, so it wont create a 4k canvas, game will look fine.
+    // 2. Navigator starts zoomed-in (e.g: 500%): Canvas width will start at 1920, game will look fine.
+    // 3. Navigator starts normal-zommed and during gameplay user do zoom-in: Game will look blurry at high zoom values
+    // 4. Navigator starts normal-zommed and during gameplay user do zoom-out: Canvas width will be clamped at 1920, game will look fine
+
     // fix the anti patterns
     // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
+    if (resizeCanvasToDisplaySize(canvas))
+        updateViewport()
+}
+
+function updateViewport() {
     const x = 0;
     const y = 0;
     // https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
@@ -96,9 +111,14 @@ function onResize() {
    * @memberOf module:webgl-utils
    */
 function resizeCanvasToDisplaySize(canvas:HTMLCanvasElement, multiplier:number=1) {
-    const width = canvas.clientWidth * multiplier | 0;
-    const height = canvas.clientHeight * multiplier | 0;
+    // I'm constraining max render buffer width because when browser is zoomed out canvas could get too big sizes
+    // canvas.clientWidth is being modified by css rules
+    const width = Math.min(canvas.clientWidth * multiplier | 0, maxWidth);
+    const ratio = window.innerWidth / window.innerHeight;
+    // const height = canvas.clientHeight * multiplier | 0;
+    const height = width / ratio;
     if (canvas.width !== width || canvas.height !== height) {
+        console.log('size changed');
         canvas.width = width;
         canvas.height = height;
         return true;
@@ -120,9 +140,10 @@ function onMouseMove(event: any) {
     const mousePosition = getMousePos(canvas, event);
     // Tranform mouse position from window coordinates to canvas coordinates
     const mousePositionCanvas = {
-        x: (mousePosition.x / gl.drawingBufferWidth) * canvas.width,
-        y: (mousePosition.y / gl.drawingBufferHeight) * canvas.height
+        x: (mousePosition.x / canvas.clientWidth) * gl.drawingBufferWidth,
+        y: (mousePosition.y / canvas.clientHeight) * gl.drawingBufferHeight
     }
+    // console.log(mousePosition, mousePositionCanvas);
     game.mousePosition = mousePositionCanvas;
 }
 // Listen for window resize events

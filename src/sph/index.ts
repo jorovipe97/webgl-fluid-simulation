@@ -199,7 +199,7 @@ export function reflectBoundaryConditions(state:SystemState) {
     }
 }
 
-export function reflectHorizontalLineObstacle(state:SystemState, ptx:number = 0.25, pty:number = 0.45, width:number = 0.15) {
+export function reflectHorizontalLineObstacle(state:SystemState, ptx:number = 0.25, pty:number = 0.45, width:number = 0.06) {
     const { x, n } = state;
     const half = 0.5;
     for (let i = 0; i < n; ++i) {
@@ -238,28 +238,28 @@ export function dampReflect(which:number, barrier:number, state:SystemState, idx
     v[idx + 1] *= DAMP; vh[idx + 1] *= DAMP;
 }
 
-function placeParticles(parameters:SystemParameters, indicatorFunction:IndicatorFunction):SystemState {
-    const { h, maxParticleCount:maxCount } = parameters;
-
+function particleCountFromRadius(radius:number, indicatorFunction:IndicatorFunction) {
     // separation between particles will be of 0.3
-    const hh = h / 1.3;
-
-    // Count mesh points that fall in indicated region.
+    const hh = radius / 1.3;
     let count:number = 0;
-    if (maxCount < 0) {
-        for (let x = 0; x < 1; x += hh)
+    // Count mesh points that fall in indicated region.
+    for (let x = 0; x < 1; x += hh)
             for (let y = 0; y < 1; y += hh)
                 count += indicatorFunction(x,y) ? 1 : 0;
-    } else {
-        count = maxCount;
-    }
+    return { count, hh };
+}
+
+function placeParticles(parameters:SystemParameters, indicatorFunction:IndicatorFunction):SystemState {
+    const h = parameters.h;
+
+    const { count, hh } = particleCountFromRadius(h, indicatorFunction);
 
     // the number of particles must be a power of two
     // to render it on the gpu
     console.log('count', count);
     // Since it's possible that the count is not a power of 2
-    // I'll compute a the top-nearest count of pixels required
-    // to get transfer all the particles.
+    // I'll compute the top-nearest count of pixels required
+    // to transfer all the particles.
     const pow = Math.ceil(Math.log2(count));
     const texturePixelsCount = 2 ** pow;
     // count = 2 ** pow;

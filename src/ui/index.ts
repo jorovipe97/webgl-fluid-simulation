@@ -6,14 +6,13 @@ const classie = require('./classie');
 
 let body:HTMLElement;
 let openButton:HTMLElement;
-let applyButton:HTMLElement;
+let resetButton:HTMLElement;
 let container:HTMLElement;
 let canvas:HTMLElement;
 let colorPairs:Array<HTMLElement>;
-let particlesCountInfo:HTMLElement;
 let particleRadiusInput:HTMLInputElement;
-let particleRadiusComputingInput:HTMLInputElement;
-let maxParticleCountInput:HTMLInputElement;
+let particlesCountInput:HTMLInputElement;
+let mouseInteractionInput:HTMLInputElement;
 let fpsInfo:HTMLElement;
 let mainGame:MainGame;
 
@@ -38,22 +37,15 @@ export function initUI (simulation:MainGame) {
     openButton = document.getElementById('open-button');
     container = document.querySelector('.container-fluid');
     canvas = document.getElementById('mainCanvas');
-    particlesCountInfo = document.getElementById('particles-count-info');
     fpsInfo = document.getElementById('fps-info');
     particleRadiusInput = <HTMLInputElement> document.getElementById('particle-radius-visualization-setup');
-    particleRadiusComputingInput = <HTMLInputElement> document.getElementById('particle-radius-computing-setup');
-    maxParticleCountInput = <HTMLInputElement> document.getElementById('max-particle-count-setup');
-    applyButton = document.getElementById('apply-button');
+    particlesCountInput = <HTMLInputElement> document.getElementById('particles-count');
+    mouseInteractionInput = <HTMLInputElement> document.getElementById('enable-mouse-interaction');
+    resetButton = document.getElementById('apply-button');
 
     const parameters:SystemParameters = getParameters();
     particleRadiusInput.value = parameters.metaballRadius+'';
-    particleRadiusComputingInput.value = parameters.h+'';
-    maxParticleCountInput.value = parameters.maxParticleCount+'';
-
-
-    // TODO: Update this when particles radius computing or max particles gets changed
-    particlesCountInfo.innerHTML = ''+mainGame.sphState.n;
-
+    // particlesCountInput.value = parameters.h+'';
     colorPairs = [
         document.getElementById('color-option-1'),
         document.getElementById('color-option-2'),
@@ -87,7 +79,6 @@ function initEvents () {
         }
     });
 
-    applyButton.addEventListener('click', onApply);
 
     colorPairs.forEach((element) => {
         element.addEventListener('click', selectColorPalette, false);
@@ -95,6 +86,10 @@ function initEvents () {
 
     // On value change
     particleRadiusInput.addEventListener('input', updateParticleRadiusVisualization);
+    particlesCountInput.addEventListener('input', onReset);
+    mouseInteractionInput.addEventListener('input', mouseInteractionChange);
+    resetButton.addEventListener('click', onReset);
+
 }
 
 function selectColorPalette (event:MouseEvent) {
@@ -109,14 +104,16 @@ function selectColorPalette (event:MouseEvent) {
     updateColorPalette();
 }
 
-function onApply () {
+function mouseInteractionChange () {
+    mainGame.mouseInteractionEnabled = mouseInteractionInput.checked;
+}
+
+function onReset () {
     // I know i'm not checking the values on those inputs but come on, this is not a bank application
     const newParameters:SystemParameters = Object.assign(getParameters(), {
-        h: +particleRadiusComputingInput.value,
-        maxParticleCount: +maxParticleCountInput.value
+        h: +particlesCountInput.value
     });
     mainGame.changeSimulationParameters(newParameters);
-    particlesCountInfo.innerHTML = ''+mainGame.sphState.n;
 }
 
 function toggleMenu () {

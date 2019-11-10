@@ -24,47 +24,73 @@
                                         <i class="fas fa-check-circle"></i>
                                     </div>
                                     <div id="color-option-1-overlay" class="color-pair-shape color-pair-overlay" data-position="0"></div>
-                                    <div class="color-pair-left" style="background-color: #1D2F5E;"></div><!--
-                                    --><div class="color-pair-right" style="background-color: #00BFFF;"></div>
+                                    <div class="color-pair-left" style="background-color: #07519B;"></div><!--
+                                    --><div class="color-pair-right" style="background-color: #009DFF;"></div>
                                 </a>
                                 <a id="color-option-2" href="#" class="color-pair">
                                     <div class="color-pair-shape color-pair-check">
                                         <i class="fas fa-check-circle"></i>
                                     </div>
                                     <div id="color-option-2-overlay" class="color-pair-shape color-pair-overlay" data-position="1"></div>
-                                    <div class="color-pair-left"></div><!--
-                                    --><div class="color-pair-right"></div>
+                                    <div class="color-pair-left" style="background-color: #29BBAE;"></div><!--
+                                    --><div class="color-pair-right" style="background-color: #C0D346;"></div>
                                 </a>
                                 <a id="color-option-3" href="#" class="color-pair">
                                     <div class="color-pair-shape color-pair-check">
                                         <i class="fas fa-check-circle"></i>
                                     </div>
                                     <div id="color-option-3-overlay" class="color-pair-shape color-pair-overlay" data-position="2"></div>
-                                    <div class="color-pair-left"></div><!--
-                                    --><div class="color-pair-right"></div>
+                                    <div class="color-pair-left" style="background-color: #FE3E23;"></div><!--
+                                    --><div class="color-pair-right" style="background-color: #FEC223;"></div>
                                 </a>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="particle-radius-visualization-setup">Particle radius (for visualization)</label>
+                            <label for="particle-radius-visualization-setup">Particle radius</label>
                             <input id="particle-radius-visualization-setup" type="number" class="form-control" min="0" step="0.001" value="0.06">
                         </div>
                         <div class="form-group">
-                            <label for="particle-radius-computing-setup">Particle radius (for computing)</label>
-                            <input id="particle-radius-computing-setup" type="number" class="form-control" min="0.01" step="0.01" value="0.2">
-                            <small class="form-text text-muted">Click on apply button to see changes.</small>
+                            <label for="particles-count">Particles count</label>
+                            <!-- <input id="particles-count" type="number" class="form-control" min="0.01" step="0.01" value="0.2"> -->
+                            <select id="particles-count" class="form-control">
+                                <optgroup label="Low-End CPU">
+                                    <option value="0.5">1</option>
+                                    <option value="0.4" selected="selected">4</option>
+                                    <option value="0.2">9</option>
+                                </optgroup>
+                                <optgroup label="Normal CPU">
+                                    <option value="0.19">12</option>
+                                    <option value="0.15">16</option>
+                                    <option value="0.14">20</option>
+                                    <option value="0.13">25</option>
+                                    <option value="0.12">30</option>
+                                    <option value="0.11">36</option>
+                                    <option value="0.09">49</option>
+                                    <option value="0.08">64</option>
+                                    <option value="0.07">81</option>
+                                    <option value="0.06">121</option>
+                                    <option value="0.05">169</option>
+                                    <option value="0.04">256</option>
+                                </optgroup>
+                                <optgroup label="Quantum CPU">
+                                    <option value="0.03">484</option>
+                                    <option value="0.02">1056</option>
+                                    <option value="0.01">4225</option>
+                                </optgroup>                                
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label for="max-particle-count-setup">Max particle count (-1 simulation decides)</label>
-                            <input id="max-particle-count-setup" type="number" class="form-control" min="-1" step="1" value="-1">
-                            <small class="form-text text-muted">Click on apply button to see changes.</small>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="enable-mouse-interaction" checked="checked">
+                                <label class="custom-control-label" for="enable-mouse-interaction">Mouse interaction</label>
+                            </div>
                         </div>
-                        <div>(Info) Particles count: <span id="particles-count-info" class="info-label">999</span></div>
+
                         <div>(Info) FPS: <span id="fps-info" class="info-label">99</span></div>
                     </div>
                     <div class="menu-bottom">
                         <a id="apply-button" href="#">
-                            <i class="fas fa-check-circle"></i> Apply
+                            <i class="fas fa-undo"></i> Restart
                         </a>
                     </div>
                 </nav>
@@ -73,7 +99,7 @@
                 <i class="fas fa-cog"></i>
             </a>
             <!--
-                TODO: Ensure the mouse position is correctly mapped to the canvas space size (1920x1080)
+                COMPLETED: Ensure the mouse position is correctly mapped to the canvas space size (1920x1080)
                 map from window coordinate to canvas coordinate
 
                 changing the width and height of the canvas causes a new image to be reallocated, instead

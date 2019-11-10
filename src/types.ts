@@ -1,5 +1,13 @@
 export class vec4 {
-    constructor(public x: number = 0, public y: number = 0, public z: number = 0, public w: number = 0) {
+    static fromHexColor (hexColor:number):vec4 {
+        const max = 255;
+        const r = (+hexColor >> 16) / max;
+        const g = ((+hexColor & 0x00FF00) >> 8) / max;
+        const b = (+hexColor & 0x0000FF) / max;
+        return new vec4(r, g, b);
+    }
+
+    constructor(public x: number = 0, public y: number = 0, public z: number = 0, public w: number = 1) {
     }
 
     toArray(): number[] {
@@ -71,6 +79,10 @@ export interface SystemParameters {
      */
     maxXAcceleration: number,
     maxParticleCount: number,
+}
+
+export interface UniformLocationsCache {
+    [index: string]: WebGLUniformLocation,
 }
 
 /**

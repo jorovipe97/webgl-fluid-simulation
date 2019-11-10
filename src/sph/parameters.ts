@@ -7,7 +7,7 @@ import { SystemParameters, ColorPalette, vec4 } from '../types';
 export const defaultParameters:SystemParameters = {
     dt: 1e-2,
     // h: 3.2e-2,
-    h: 2e-1,
+    h: 4e-1,
     maxParticleCount: -1,
     // h: 7e-1,
     // metaballRadius: 8,
@@ -22,18 +22,18 @@ export const defaultParameters:SystemParameters = {
 
 export const palettes:ColorPalette[] = [
     new ColorPalette(
-        new vec4(0.1529, 0.2352, 0.4588, 1.),
-        new vec4(0.0980, 0.1647, 0.3372, 1.),
-        new vec4(0.000, 0.749, 1.000, 1.0)
+        vec4.fromHexColor(0x02417B),
+        vec4.fromHexColor(0x07519B),
+        vec4.fromHexColor(0x009DFF)
     ),
     new ColorPalette(
-        new vec4(1, 0, 0, 1.),
-        new vec4(0.9, 0, 0, 1.),
-        new vec4(0, 1, 0, 1.0)
+        vec4.fromHexColor(0x29BBAE),
+        vec4.fromHexColor(0x0CB3A2),
+        vec4.fromHexColor(0xC0D346)
     ),
     new ColorPalette(
-        new vec4(0, 0, 1, 1.),
-        new vec4(0, 0, 0.9, 1.),
-        new vec4(1, 0, 0, 1.0)
+        vec4.fromHexColor(0xFF3E23),
+        vec4.fromHexColor(0xFE3E23),
+        vec4.fromHexColor(0xFEC223)
     )
 ];

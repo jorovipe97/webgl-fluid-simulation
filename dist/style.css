@@ -81,7 +81,7 @@ a.menu-button:active {
 .show-menu .menu-wrap {
   width: 280px;
   height: 90%;
-  max-height: 525px;
+  max-height: 440px;
   -webkit-animation: jelly-anim 0.8s linear forwards;
   animation: jelly-anim 0.8s linear forwards;
 }

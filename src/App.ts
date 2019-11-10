@@ -1,4 +1,4 @@
-import { Position } from './types';
+import { Position, UniformLocationsCache } from './types';
 
 /**
  * This base class is the interface with the index.ts file
@@ -11,10 +11,9 @@ export class App
     protected GL:WebGLRenderingContext;
     protected canvas:HTMLCanvasElement;
 
+    private uniformLocations: UniformLocationsCache = {};
 
     mousePosition:Position = null;
-    viewporWidth:number;
-    viewporHeight:number;
     FPS:number;
     /**
      * Time in ms since last frame
@@ -60,9 +59,15 @@ export class App
     }
 
     getUniformLocation(program:WebGLProgram, name:string, ignoreErrors:boolean = false):WebGLUniformLocation {
-        var uniformLocation = this.GL.getUniformLocation(program, name);
-        if (uniformLocation === null && !ignoreErrors) {
-            throw 'Can not find uniform ' + name + '.';
+        let uniformLocation = this.uniformLocations[name];
+        if (!uniformLocation) {
+           uniformLocation = this.GL.getUniformLocation(program, name);
+           if (uniformLocation === null) {
+               if (!ignoreErrors) throw 'Can not find uniform ' + name + '.';
+           } else {
+               // If no errors cache the uniform location
+               this.uniformLocations[name] = uniformLocation;
+           }
         }
         return uniformLocation;
     }
@@ -80,6 +85,11 @@ export class App
     // #region API Methods
     public setup():void {
 
+    }
+
+    public unload():void {
+        // removes previously cached uniform locations
+        this.uniformLocations = {};
     }
 
     public loop():void {

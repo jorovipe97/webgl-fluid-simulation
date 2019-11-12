@@ -5,6 +5,8 @@ import { MetaballsShaderInfo, SystemState, SystemParameters } from '../types';
 import { getParameters, initParticles, computeAcceleration, leapfrogStart, leapfrogStep, getTextureData, printCurrentState, reflectHorizontalLineObstacle, freeState, freeParameters } from './index';
 import { ColorPalette } from '../types';
 import { palettes } from './parameters';
+const classie = require('../vendors/classie');
+
 
 /**
  * This is the entry point of any game logic
@@ -114,7 +116,10 @@ export class MainGame extends App {
         // like OES_texture_float. And then you want to pass
         // gl.FLOAT as the type parameter to texImage2D.
         const float_texture_ext = this.GL.getExtension('OES_texture_float');
-        if (float_texture_ext == null) throw 'OES_texture_float not supported';
+        if (float_texture_ext == null) {
+            this.showError('OES_texture_float not supported');
+            throw 'OES_texture_float not supported';
+        }
         // TODO: Move this to a function which converts SystemState and SystemParameters into a chunk of texture data to
         // send positions to gpu.
         this.textureData = new Float32Array(this.sphState.pixelsCount * 4);
@@ -225,7 +230,13 @@ export class MainGame extends App {
         this.isSettingUp = false;
     }
 
-
+    showError (message:string) {
+        const errorDiv = document.getElementById('warning-container');
+        const errorDetailsSpan = document.getElementById('error-details');
+        errorDetailsSpan.innerText = message;
+        classie.add(this.canvas, 'hide');
+        classie.remove(errorDiv, 'hide');
+    }
 
     /**
      * This method is called from ui/index

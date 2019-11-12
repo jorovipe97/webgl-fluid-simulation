@@ -107,8 +107,14 @@
              -->
             <!-- <canvas id="mainCanvas"></canvas> -->
             <canvas id="mainCanvas" style="width: 100vw; height: 100vh;"></canvas>
-            <!-- <div style="display: flex; justify-content: stretch;">
-            </div> -->
+            <div id="warning-container" class="warning-container hide">
+                <div class="warning-content">
+                    <h2>Your device doesn't support the required features</h2>
+                    <h3>to run this simulation, try it on another one.</h3>
+                    <p>Error details: <span id="error-details">Foo Error</span></p>
+                    <i class="fas fa-sad-tear big-size"></i>
+                </div>
+            </div>
         </div>
         <script src="fallbacks.js"></script>
         <script src="bundle.js" defer async></script>

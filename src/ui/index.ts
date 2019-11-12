@@ -1,8 +1,8 @@
 import { ColorPalette, vec4, SystemParameters } from '../types';
 import { MainGame } from '../sph/main';
-import { getParameters } from '../sph';
+import { getParameters } from '../sph/index';
 import { palettes } from '../sph/parameters';
-const classie = require('./classie');
+const classie = require('../vendors/classie');
 
 let body:HTMLElement;
 let openButton:HTMLElement;

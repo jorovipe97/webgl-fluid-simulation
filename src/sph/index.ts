@@ -238,21 +238,16 @@ export function dampReflect(which:number, barrier:number, state:SystemState, idx
     v[idx + 1] *= DAMP; vh[idx + 1] *= DAMP;
 }
 
-function particleCountFromRadius(radius:number, indicatorFunction:IndicatorFunction) {
+function placeParticles(parameters:SystemParameters, indicatorFunction:IndicatorFunction):SystemState {
+    const h = parameters.h;
+
     // separation between particles will be of 0.3
-    const hh = radius / 1.3;
+    const hh = h / 1.3;
     let count:number = 0;
     // Count mesh points that fall in indicated region.
     for (let x = 0; x < 1; x += hh)
             for (let y = 0; y < 1; y += hh)
                 count += indicatorFunction(x,y) ? 1 : 0;
-    return { count, hh };
-}
-
-function placeParticles(parameters:SystemParameters, indicatorFunction:IndicatorFunction):SystemState {
-    const h = parameters.h;
-
-    const { count, hh } = particleCountFromRadius(h, indicatorFunction);
 
     // the number of particles must be a power of two
     // to render it on the gpu

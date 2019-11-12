@@ -116,6 +116,9 @@ export class MainGame extends App {
         // like OES_texture_float. And then you want to pass
         // gl.FLOAT as the type parameter to texImage2D.
         const float_texture_ext = this.GL.getExtension('OES_texture_float');
+        // TODO: Test this if not supported https://developer.mozilla.org/en-US/docs/Web/API/OES_texture_half_float
+        // https://stackoverflow.com/questions/28827511/webgl-ios-render-to-floating-point-texture
+        // https://webgl2fundamentals.org/webgl/lessons/webgl1-to-webgl2.html
         if (float_texture_ext == null) {
             this.showError('OES_texture_float not supported');
             throw 'OES_texture_float not supported';

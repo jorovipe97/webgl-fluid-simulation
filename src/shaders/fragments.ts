@@ -16,8 +16,7 @@ export function generateMetaballsShaderSource(state:SystemState, params:SystemPa
     const halfLog = countLog2 / 2;
     const width = 2 ** Math.floor(halfLog);
     const height = 2 ** Math.ceil(halfLog);
-    console.log(width, height);
-    // TODO: Add a tail in the oposite direction of the particle velocity
+    // DONE: Add a tail in the oposite direction of the particle velocity
     // #region Shader Source
     const shaderSource = `
 precision highp float;

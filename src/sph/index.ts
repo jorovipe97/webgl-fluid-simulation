@@ -251,14 +251,12 @@ function placeParticles(parameters:SystemParameters, indicatorFunction:Indicator
 
     // the number of particles must be a power of two
     // to render it on the gpu
-    console.log('count', count);
     // Since it's possible that the count is not a power of 2
     // I'll compute the top-nearest count of pixels required
     // to transfer all the particles.
     const pow = Math.ceil(Math.log2(count));
     const texturePixelsCount = 2 ** pow;
     // count = 2 ** pow;
-    console.log('texturePixels', texturePixelsCount);
     // Populate the particle data structure
     const s:SystemState = allocState(count, texturePixelsCount);
     let p = 0;
@@ -307,7 +305,7 @@ export function initParticles(parameters:SystemParameters):SystemState
     // const radius = 0.25;
     // const s:SystemState = placeParticles(parameters, circleIndicatorFactory(centerX, centerY, radius));
     normalizeMass(s, parameters);
-    printCurrentState(s, 'after normalizeMass()');
+    // printCurrentState(s, 'after normalizeMass()');
     return s;
 }
 

@@ -40,7 +40,6 @@ export class MainGame extends App {
     }
 
     setup() {
-        console.log('setup');
         // If sphParameters is undefined
         // is undefined only the first time
         if (!this.sphParameters) {
@@ -110,7 +109,6 @@ export class MainGame extends App {
         const level = 0;
         const width = this.shaderInfo.textureDimensions.width;
         const height = this.shaderInfo.textureDimensions.height;
-        console.log(width, height);
         // Note that in WebGL, contrary to OpenGL, you have to explicitly
         // call getExtension before you can use an extension,
         // like OES_texture_float. And then you want to pass
@@ -174,7 +172,6 @@ export class MainGame extends App {
 
     // onResize gets called before and after setup
     onResize() {
-        console.log('onResize');
         if (this.viewporSize == null)
             this.viewporSize = new Float32Array(2);
 
